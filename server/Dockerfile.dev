@@ -1,0 +1,9 @@
+FROM node:12.18.0
+
+WORKDIR /
+
+COPY package.json ./
+RUN npm install
+RUN npm install -g nodemon
+
+CMD [ "nodemon", "-L", "--inspect=0.0.0.0:9229", "/dist/server.js" ]

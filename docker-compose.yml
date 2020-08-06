@@ -1,0 +1,55 @@
+version: "3.7"
+
+services:
+    stay_a_while_server:
+        image: stay_a_while_server:1.0
+        container_name: stay_a_while_server
+        build:
+            context: server
+            dockerfile: Dockerfile.dev
+        networks:
+            - stay_a_while
+        volumes:
+            - ./server/dist:/dist
+        environment:
+            APP_NAME: stay_a_while
+            SERVER_PORT: ${SERVER_PORT}
+            REDIS_HOST: ${REDIS_HOST}
+            REDIS_PORT: ${REDIS_PORT}
+            SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
+            SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
+            REACT_EDITOR: ${REACT_EDITOR}
+            HOST: ${HOST}
+            IS_DEVELOPMENT: ${IS_DEVELOPMENT}
+        ports:
+            - "${SERVER_PORT}:${SERVER_PORT}"
+        expose:
+            - ${CLIENT_PORT}
+            - ${SERVER_PORT
+            - ${REDIS_PORT}
+    stay_a_while_client:
+        image: stay_a_while_client:1.0
+        container_name: stay_a_while_client
+        build:
+            context: client
+            dockerfile: Dockerfile.dev
+        networks:
+            - stay_a_while
+        volumes:
+            - ./client/src:/client/src
+            - ./client/public:/client/public
+        environment:
+            APP_NAME: stay_a_while
+            CODE_VERSION: local
+        ports:
+            - ${CLIENT_PORT}:${CLIENT_PORT}
+            - "35729:35729"
+        expose:
+            - ${CLIENT_PORT}
+        links:
+            - stay_a_while_server
+        stdin_open: true
+networks:
+    stay_a_while:
+        name: stay_a_while
+        driver: bridge

@@ -1,34 +1,25 @@
 {
   "name": "stay_a_while",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "and listen!",
+  "author": "Jacob Haller-Roby <jacob.haller.roby@gmail.com>",
+  "license": "MIT",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
-  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "yarn gulp build",
+    "buildDev": "yarn gulp buildDev"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "_moduleAliases": {
+    "@server": "./server/src"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@types/gulp": "4.0.6",
+    "@types/jest": "26.0.3",
+    "fs": "0.0.1-security",
+    "gulp": "4.0.2",
+    "gulp-typescript": "6.0.0-alpha.1",
+    "rmrf": "2.0.2",
+    "ts-node": "8.10.2",
+    "typescript": "3.9.5"
   }
 }
