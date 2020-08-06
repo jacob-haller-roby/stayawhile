@@ -8,7 +8,7 @@ const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = process.env.HOST + "/spotify/callback";
 const STATE_KEY = 'state_key';
 
-const spotifyClient = {};
+const spotifyAuthorizationClient = {};
 
 const generateRandomString = function(length) {
     let text = '';
@@ -20,7 +20,7 @@ const generateRandomString = function(length) {
     return text;
 };
 
-spotifyClient.login = (req, res) => {
+spotifyAuthorizationClient.login = (req, res) => {
     const state = generateRandomString(16);
     res.cookie(STATE_KEY, state);
     return res.send({
@@ -37,7 +37,7 @@ spotifyClient.login = (req, res) => {
     )
 };
 
-spotifyClient.loginCallback = (req, res) => {
+spotifyAuthorizationClient.loginCallback = (req, res) => {
     const code = req.query.code || null;
     const state = req.query.state || null;
     const storedState = req.cookies ? req.cookies[STATE_KEY] : null;
@@ -88,7 +88,7 @@ spotifyClient.loginCallback = (req, res) => {
     }
 };
 
-spotifyClient.refresh = (req, res) => {
+spotifyAuthorizationClient.refresh = (req, res) => {
     let refresh_token = req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN];
     if(!refresh_token) {
         console.log('no refresh token, user must log in');
@@ -117,7 +117,7 @@ spotifyClient.refresh = (req, res) => {
     });
 }
 
-spotifyClient.logout = (req, res) => {
+spotifyAuthorizationClient.logout = (req, res) => {
     let refresh_token = req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN];
     if (!refresh_token) {
         console.log('already logged out');
@@ -129,42 +129,4 @@ spotifyClient.logout = (req, res) => {
     return res.send({isLoggedIn: false});
 }
 
-const getAccessToken = async (req, res) => {
-    return await new Promise((resolve, reject) => {
-        const refresh_token = req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN];
-        if(!refresh_token) {
-            reject('No refresh token in cookies');
-        }
-        const access_token = redisClient.getAccessToken(refresh_token);
-    })
-        .catch(() => res.status(403).send({error: "Error Getting Access Token"}));
-
-};
-
-const spotifyWithCreds = (methodFunc) => async (uri, req, body) => {
-    const options = {
-        url: `https://api.spotify.com/v1/${uri}`,
-        headers: {
-            'Authorization': 'Bearer ' + redisClient.getAccessToken(req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN])
-        },
-        body
-    };
-
-    return await new Promise((resolve, reject) => {
-        methodFunc(options, (error, response, body) => {
-            let jsonBody = JSON.parse(body);
-            if(jsonBody.error) {
-                reject(jsonBody);
-            }
-            resolve(jsonBody);
-        });
-    });
-}
-const getSpotify = spotifyWithCreds(request.get);
-const postSpotify = spotifyWithCreds(request.post);
-
-spotifyClient.me = (req, res) => {
-
-}
-
-export default spotifyClient;
+export default spotifyAuthorizationClient;

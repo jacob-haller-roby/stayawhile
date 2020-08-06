@@ -11,10 +11,8 @@ const keys = {
     accessTokenKey: (refreshToken) => `access_token:${refreshToken}`
 }
 
-const redisDao = {
-    setAccessToken: (refreshToken, accessToken) => redisClient.set(keys.accessTokenKey(refreshToken), accessToken),
-    getAccessToken: (refreshToken) => redisClient.get(keys.accessTokenKey(refreshToken)),
-    deleteAccessToken: (refreshToken) => redisClient.del(keys.accessTokenKey(refreshToken))
-};
+redisClient.setAccessToken = (refreshToken, accessToken) => redisClient.set(keys.accessTokenKey(refreshToken), accessToken);
+redisClient.getAccessToken = (refreshToken) => redisClient.get(keys.accessTokenKey(refreshToken));
+redisClient.deleteAccessToken = (refreshToken) => redisClient.del(keys.accessTokenKey(refreshToken));
 
-export default redisDao;
+export default redisClient;

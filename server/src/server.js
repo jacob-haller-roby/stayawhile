@@ -1,7 +1,6 @@
 import express from 'express';
 import path from 'path';
 import spotify from "./controllers/spotify";
-import redis from "./controllers/redis";
 import logger from "./util/logger";
 
 logger.debug(process.env);
@@ -19,7 +18,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/spotify', spotify);
-app.use('/redis', redis);
 
 
 

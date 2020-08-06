@@ -17,16 +17,16 @@ module.exports = {
         __filename: false,  // and __filename return blank or /
     },
     externals: [nodeExternals()], // Need this to avoid error when working with Express
-    module: {
-        rules: [
-            {
-                // Transpiles ES6-8 into ES5
-                test: /\.js$/,
-                use: {
-                    loader: "babel-loader"
-                }
-            }
-        ]
-    },
+    // module: {
+    //     rules: [
+    //         {
+    //             // Transpiles ES6-8 into ES5
+    //             test: /\.js$/,
+    //             use: {
+    //                 loader: "babel-loader"
+    //             }
+    //         }
+    //     ]
+    // },
     devtool: "source-map"
 }
