@@ -7,6 +7,9 @@ const authReducer = (state = {}, action) => {
         case authActions.REFRESH_ACCESS_TOKEN:
             newState.isLoggedIn = action.isLoggedIn;
             newState.verifiedLogin = true;
+            break;
+        case authActions.GET_PROFILE:
+            newState.profile = action.profile;
         default:
     }
     return newState;

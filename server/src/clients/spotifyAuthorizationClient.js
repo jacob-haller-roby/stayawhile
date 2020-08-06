@@ -107,8 +107,6 @@ spotifyClient.refresh = (req, res) => {
         }
     };
 
-    console.log(options);
-
     return request.post(options, (error, response, body) => {
         let jsonBody = JSON.parse(body);
         if(jsonBody.error) {
@@ -143,5 +141,30 @@ const getAccessToken = async (req, res) => {
 
 };
 
+const spotifyWithCreds = (methodFunc) => async (uri, req, body) => {
+    const options = {
+        url: `https://api.spotify.com/v1/${uri}`,
+        headers: {
+            'Authorization': 'Bearer ' + redisClient.getAccessToken(req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN])
+        },
+        body
+    };
+
+    return await new Promise((resolve, reject) => {
+        methodFunc(options, (error, response, body) => {
+            let jsonBody = JSON.parse(body);
+            if(jsonBody.error) {
+                reject(jsonBody);
+            }
+            resolve(jsonBody);
+        });
+    });
+}
+const getSpotify = spotifyWithCreds(request.get);
+const postSpotify = spotifyWithCreds(request.post);
+
+spotifyClient.me = (req, res) => {
+
+}
 
 export default spotifyClient;
