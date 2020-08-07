@@ -3,10 +3,14 @@ import roomActions from "../actions/roomActions";
 
 export const createRoom = (options) => dispatch => {
     api.post('/room/create', options)
-        .then(res => dispatch({
-            type: roomActions.CREATE_ROOM,
-            room: res
-        }));
+        .then(res => {
+            dispatch({
+                type: roomActions.CREATE_ROOM,
+                room: res
+            });
+            dispatch(attendRoom(res.id));
+        })
+
 }
 
 export const getMyRooms = () => dispatch => {

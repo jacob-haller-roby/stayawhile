@@ -10,7 +10,8 @@ api.call = (method) => async (uri, body, timeout) => {
         xhr.onerror = (e) => {
             rej(JSON.parse(xhr.response));
         }
-        xhr.send(body);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.send(JSON.stringify(body));
     }, timeout || 5000);
     return await promise;
 }
