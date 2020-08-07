@@ -228,7 +228,6 @@ class Header extends React.Component {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                autoFocus
                                 margin="dense"
                                 id="password"
                                 label="Passowrd"
@@ -242,7 +241,6 @@ class Header extends React.Component {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                autoFocus
                                 margin="dense"
                                 id="confirm"
                                 label="Confirm Password"
