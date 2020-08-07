@@ -35,6 +35,7 @@ room.delete('/membership/:roomId', async (req, res) => {
 room.get('/membership', async (req, res) => res.send(await redisClient.getRoomsByUser(res.locals.userId)));
 //room.get('/', async (req, res) => res.send(await redisClient.getAllRooms()));
 room.post('/attend/:roomId', async (req, res) => {
+    await redisClient.departRoom(res.locals.userId);
     await redisClient.attendRoom(req.params.roomId, res.locals.userId);
     res.send(await redisClient.getRoomsByUser(res.locals.userId));
 });

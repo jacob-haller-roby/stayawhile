@@ -110,7 +110,7 @@ class Header extends React.Component {
                         <ListItem
                             button
                             key={room.title}
-                            onClick={() => this.props.attendRoom(room.id)}
+                            onClick={() => isCurrentRoom || this.props.attendRoom(room.id)}
                             selected={isCurrentRoom}
                         >
                             <ListItemIcon>{isCurrentRoom ? <MusicNote/> : <MeetingRoom/>}</ListItemIcon>

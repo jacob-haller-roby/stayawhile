@@ -53,11 +53,9 @@ redisClient.attendRoom = async (roomId, userId) => {
     await redisClient.sadd(keys.roomAttendees(roomId), userId);
 }
 redisClient.departRoom = async (userId) => {
-    const currentRoomId = await redisClient.get(keys.userCurrentRoom(userId));
-    if (currentRoomId) {
-        await redisClient.srem(keys.roomAttendees(currentRoomId), userId);
-        await redisClient.del(keys.userCurrentRoom(userId));
-    }
+    await redisClient.smembersa(keys.userRooms(userId))
+        .then(async roomIds => await Promise.all(roomIds.map(roomId => redisClient.srem(keys.roomAttendees(roomId), userId))));
+    await redisClient.del(keys.userCurrentRoom(userId));
 }
 redisClient.addRoom = async (ownerId, options) => {
     await redisClient.setnx(keys.roomIdCounter(), 0);
