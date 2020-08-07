@@ -1,14 +1,15 @@
 import {createSelector} from 'reselect';
 
-export const getAuthState = (state) => state.auth;
+export const authStateSelector = (state) => state.auth;
+export const roomStateSelector = (state) => state.room;
 
-export const getProfile = createSelector(
-    [getAuthState],
+export const profileSelector = createSelector(
+    [authStateSelector],
     (authState) => authState.profile
 );
 
-export const getProfileImageUrl = createSelector(
-    [getProfile],
+export const profileImageUrlSelector = createSelector(
+    [profileSelector],
     (profile) => {
         if (
             profile &&
@@ -21,7 +22,17 @@ export const getProfileImageUrl = createSelector(
     }
 );
 
-export const getProfileName = createSelector(
-    [getProfile],
-    (profile) => !!profile && profile.display_name || ''
+export const profileNameSelector = createSelector(
+    [profileSelector],
+    (profile) => !!profile && profile.id || ''
 );
+
+export const roomsSelector = createSelector(
+    [roomStateSelector],
+    (roomState) => roomState.rooms
+)
+
+export const currentRoomSelector = createSelector(
+    [roomsSelector, profileNameSelector],
+    (rooms, name) => rooms && rooms.find(room => room.attendees.includes(name))
+)

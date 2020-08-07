@@ -10,6 +10,7 @@ const authReducer = (state = {}, action) => {
             break;
         case authActions.GET_PROFILE:
             newState.profile = action.profile;
+            break;
         default:
     }
     return newState;

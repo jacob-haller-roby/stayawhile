@@ -3,7 +3,10 @@ import {connect} from 'react-redux';
 import {AppBar, Avatar, IconButton, MenuItem, Toolbar, Typography, Menu} from "@material-ui/core";
 import {Close, ExitToApp} from "@material-ui/icons";
 import {login, logout, getProfile} from "../redux/actionCreators/authActionCreators";
-import {getProfileImageUrl, getProfileName} from "../redux/selectors/selectors";
+import {
+    profileImageUrlSelector,
+    profileNameSelector
+} from "../redux/selectors/selectors";
 
 class Header extends React.Component {
     constructor(props) {
@@ -91,8 +94,8 @@ class Header extends React.Component {
 
 export default connect(
     (state) => ({
-        profileImageUrl: getProfileImageUrl(state),
-        profileName: getProfileName(state)
+        profileImageUrl: profileImageUrlSelector(state),
+        profileName: profileNameSelector(state)
     }),
     (dispatch) => ({
         logout: () => dispatch(logout()),

@@ -1,6 +1,6 @@
 const api = {};
 
-api.call = (method) => async (uri, timeout) => {
+api.call = (method) => async (uri, body, timeout) => {
     let promise = new Promise((res, rej) => {
         const xhr = new XMLHttpRequest();
         xhr.open(method, uri);
@@ -10,7 +10,7 @@ api.call = (method) => async (uri, timeout) => {
         xhr.onerror = (e) => {
             rej(JSON.parse(xhr.response));
         }
-        xhr.send();
+        xhr.send(body);
     }, timeout || 5000);
     return await promise;
 }
