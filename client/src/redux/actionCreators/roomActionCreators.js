@@ -36,3 +36,48 @@ export const departRoom = () => dispatch => {
             rooms: res
         }));
 };
+
+export const processRoomInvite = () => dispatch => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; inviteRoomId=`);
+    if (parts.length === 2) {
+        const subParts = parts[1].split(';');
+        let inviteRoomId = subParts.shift();
+        dispatch({
+            type: roomActions.INVITATION_RECEIVED,
+            inviteRoomId
+        });
+    }
+}
+
+export const clearRoomInviteCookie = () => dispatch => {
+    console.log('clearing old invite cookie');
+    document.cookie = 'inviteRoomId="";expires='+(new Date()).toUTCString()+';path=/;';
+}
+
+export const acceptRoomInvite = (password) => dispatch => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; inviteRoomId=`);
+    if (parts.length === 2) {
+        const subParts = parts[1].split(';');
+        let inviteRoomId = subParts.shift();
+
+        api.post(`/room/membership/${inviteRoomId}`, {password})
+            .catch((e) => {
+                dispatch({
+                    type: roomActions.WRONG_PASSWORD,
+                    error: e.errorMessage
+                });
+                throw e;
+            })
+            .then(res => {
+                dispatch({
+                    type: roomActions.JOINED_ROOM,
+                    rooms: res
+                });
+                dispatch(clearRoomInviteCookie());
+            })
+            .then(() => dispatch(attendRoom(inviteRoomId)))
+            .catch((e) => {});
+    }
+}

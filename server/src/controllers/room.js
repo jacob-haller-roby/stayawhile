@@ -23,7 +23,7 @@ room.post('/membership/:roomId', async (req, res) => {
     const room = await redisClient.getRoom(req.params.roomId);
     if (!room.password || passwordHash.verify(req.body.password || '', room.password)){
         await redisClient.joinRoom(req.params.roomId, res.locals.userId);
-        await res.send(redisClient.getRoomsByUser(res.locals.userId));
+        res.send(await redisClient.getRoomsByUser(res.locals.userId));
     } else {
         errorResponseFactory.create403(res, "Incorrect Password");
     }

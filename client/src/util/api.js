@@ -5,7 +5,11 @@ api.call = (method) => async (uri, body, timeout) => {
         const xhr = new XMLHttpRequest();
         xhr.open(method, uri);
         xhr.onload = (e) => {
-            res(JSON.parse(xhr.response));
+            if (xhr.status == 200) {
+                res(JSON.parse(xhr.response));
+            } else {
+                rej(JSON.parse(xhr.response));
+            }
         };
         xhr.onerror = (e) => {
             rej(JSON.parse(xhr.response));

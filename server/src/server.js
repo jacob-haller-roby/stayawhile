@@ -6,7 +6,6 @@ import logger from "./util/logger";
 import room from "./controllers/room";
 
 logger.debug(process.env);
-logger.log(process.env.IS_DEVELOPMENT);
 
 const app = express();
 
@@ -17,6 +16,11 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'build')));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+app.get('/gameOn/:roomId', (req, res) => {
+    res.cookie("inviteRoomId", req.params.roomId);
+    res.redirect(301, '/');
 });
 
 app.use('/spotify', spotify);

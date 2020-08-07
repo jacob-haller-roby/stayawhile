@@ -30,9 +30,19 @@ export const profileNameSelector = createSelector(
 export const roomsSelector = createSelector(
     [roomStateSelector],
     (roomState) => roomState.rooms
-)
+);
 
 export const currentRoomSelector = createSelector(
     [roomsSelector, profileNameSelector],
     (rooms, name) => rooms && rooms.find(room => room.attendees.includes(name))
+);
+
+export const inviteRoomIdSelector = createSelector(
+    [roomStateSelector],
+    (roomState) => !roomState.rooms.some(room => room.id === roomState.inviteRoomId) && roomState.inviteRoomId
+);
+
+export const invitePasswordErrorSelector = createSelector(
+    [roomStateSelector],
+    (roomState) => roomState.invitePasswordError
 )
