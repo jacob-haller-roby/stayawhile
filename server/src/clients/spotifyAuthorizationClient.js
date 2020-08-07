@@ -2,6 +2,7 @@ import queryString from 'query-string';
 import redisClient from "./redisClient";
 import request from 'request';
 import CONSTANTS from '../constants';
+import spotifyApiClient from "./spotifyApiClient";
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
@@ -70,16 +71,6 @@ spotifyAuthorizationClient.loginCallback = (req, res) => {
 
                 res.cookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN, refresh_token, {httpOnly: true, sameSite: 'strict', secure: true});
                 redisClient.setAccessToken(refresh_token, access_token);
-                // const options = {
-                //     url: 'https://api.spotify.com/v1/me',
-                //     headers: { 'Authorization': 'Bearer ' + access_token },
-                //     json: true
-                // };
-                //
-                // // use the access token to access the Spotify Web API
-                // request.get(options, function(error, response, body) {
-                //     console.log(body);
-                // });
             } else {
                 console.error('ERROR: ' + error);
             }
@@ -113,7 +104,12 @@ spotifyAuthorizationClient.refresh = (req, res) => {
             return res.send({isLoggedIn: false, jsonBody});
         }
         redisClient.setAccessToken(refresh_token, jsonBody.access_token);
-        return res.send({isLoggedIn: true})
+
+        spotifyApiClient.me(req, res)
+            .then(profile => {
+                redisClient.setUserId(refresh_token, profile.id);
+                return res.send({isLoggedIn: true, profile});
+            });
     });
 }
 
@@ -125,6 +121,7 @@ spotifyAuthorizationClient.logout = (req, res) => {
     }
 
     redisClient.deleteAccessToken(refresh_token);
+    redisClient.deleteUserId(refresh_token);
     res.clearCookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN);
     return res.send({isLoggedIn: false});
 }

@@ -1,7 +1,9 @@
 import CONSTANTS from '../constants';
 import redisClient from './redisClient';
-import queryString, {stringify} from 'query-string';
+import {stringify} from 'query-string';
 import request from 'request';
+import logger from "../util/logger";
+import errorResponseFactory from "../util/errorResponseFactory";
 
 const getAccessToken = async (req, res) => {
     return await new Promise((resolve, reject) => {
@@ -17,7 +19,7 @@ const getAccessToken = async (req, res) => {
 
 const spotifyWithCreds = (method) => (uri, body) => async (req, res) => {
     const options = {
-        url: `https://api.spotify.com/v1/${uri}?` + queryString.stringify(body),
+        url: `https://api.spotify.com/v1/${uri}?` + stringify(body),
         headers: {
             'Authorization': 'Bearer ' + await getAccessToken(req, res)
         },
@@ -31,8 +33,14 @@ const spotifyWithCreds = (method) => (uri, body) => async (req, res) => {
                 reject(jsonBody);
             }
             resolve(jsonBody);
+        })
+    })
+        .catch(jsonBody => {
+            logger.error("ERROR:", jsonBody);
+            logger.error("Clearing user's refresh token");
+            res.clearCookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN);
+            errorResponseFactory.create401(res, "Access token not found, requesting re-login");
         });
-    });
 }
 const getSpotify = (uri) => spotifyWithCreds('GET')(uri, {});
 const postSpotify = spotifyWithCreds('POST');

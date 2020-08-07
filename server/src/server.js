@@ -1,7 +1,9 @@
+import 'source-map-support/register';
 import express from 'express';
 import path from 'path';
 import spotify from "./controllers/spotify";
 import logger from "./util/logger";
+import room from "./controllers/room";
 
 logger.debug(process.env);
 logger.log(process.env.IS_DEVELOPMENT);
@@ -18,6 +20,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/spotify', spotify);
+app.use('/room', room);
 
 
 

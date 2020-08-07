@@ -25,7 +25,7 @@ services:
             - "${SERVER_PORT}:${SERVER_PORT}"
         expose:
             - ${CLIENT_PORT}
-            - ${SERVER_PORT
+            - ${SERVER_PORT}
             - ${REDIS_PORT}
     stay_a_while_client:
         image: stay_a_while_client:1.0
