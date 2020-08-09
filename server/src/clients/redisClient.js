@@ -26,7 +26,8 @@ const keys = {
     userCurrentRoom: (userId) => `user_current_room:${userId}`, //string
     roomAttendees: (roomId) => `room_attendees:${roomId}`, //set
     roomPlaylists: (roomId) => `room_playlists:${roomId}`, //set
-    playlist: (playlistId) => `playlist:${playlistId}` //hash
+    playlist: (playlistId) => `playlist:${playlistId}`, //hash
+    device: (userId) => `device:${userId}` //string
 }
 
 //Access Tokens
@@ -112,6 +113,13 @@ redisClient.getRoomPlaylists = async (roomId) => {
 };
 redisClient.getPlaylist = async (playlistId) => {
     return await redisClient.hgetall(keys.playlist(playlistId));
+};
+redisClient.saveDeviceId = async (userId, deviceId) => {
+    await redisClient.set(keys.device(userId), deviceId);
+    return await redisClient.getDeviceId(userId);
+};
+redisClient.getDeviceId = async (userId) => {
+    return await redisClient.get(keys.device(userId));
 }
 
 

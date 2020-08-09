@@ -29,7 +29,7 @@ spotifyAuthorizationClient.login = (req, res) => {
                 queryString.stringify({
                     response_type: 'code',
                     client_id: CLIENT_ID,
-                    scope: 'user-read-private user-read-email',
+                    scope: 'user-read-private user-read-email user-modify-playback-state user-read-playback-state user-read-currently-playing streaming playlist-read-private',
                     redirect_uri: REDIRECT_URI,
                     state: state,
                     show_dialog: true
@@ -108,7 +108,7 @@ spotifyAuthorizationClient.refresh = (req, res) => {
         spotifyApiClient.me(req, res)
             .then(profile => {
                 redisClient.setUserId(refresh_token, profile.id);
-                return res.send({isLoggedIn: true, profile});
+                return res.send({isLoggedIn: true, profile, accessToken: jsonBody.access_token});
             });
     });
 }

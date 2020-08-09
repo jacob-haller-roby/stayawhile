@@ -1,6 +1,7 @@
 import React from "react";
 import {Card, CardContent, CardMedia, Grid, Typography} from "@material-ui/core";
 import RoomActions from "./RoomActions";
+import SpotifyPlayer from "./SpotifyPlayer";
 
 
 class ActiveRoomOwner extends React.Component {
@@ -32,9 +33,10 @@ class ActiveRoomOwner extends React.Component {
                 </Grid>
                 <Grid container spacing={3}>
                     {this.props.roomPlaylists.map(playlist => {
+                        const isPlaying = playlist.uri === this.props.currentPlaylistUri;
                         return (
                             <Grid item xs={12} sm={6} lg={3}>
-                                <Card>
+                                <Card onClick={this.props.playPlaylist.bind(this, playlist.id)} raised={isPlaying} style={{backgroundColor: isPlaying ? 'beige' : 'lightgray', userSelect: 'none', cursor: 'pointer'}}>
                                     <CardMedia image={playlist.imageUrl}
                                                style={{height: '100px'}}
                                                title={playlist.name}/>

@@ -60,3 +60,18 @@ export const roomPlaylistsSelector = createSelector(
     [roomStateSelector],
     (roomState) => roomState.roomPlaylists
 );
+
+export const spotifyAccessTokenSelector = createSelector(
+    [spotifyStateSelector],
+    (spotifyState) => spotifyState.accessToken
+);
+
+export const spotifyCurrentTrackSelector = createSelector(
+    [spotifyStateSelector],
+    (spotifyState) => spotifyState.currentTrack
+);
+
+export const spotifyCurrentPlaylistUriSelector = createSelector(
+    [spotifyStateSelector],
+    (spotifyState) => spotifyState.currentPlaylistUri
+);

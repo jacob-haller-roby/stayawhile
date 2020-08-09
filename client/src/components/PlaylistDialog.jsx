@@ -83,7 +83,7 @@ class PlaylistDialog extends React.Component {
                                     return (
                                         <Grid item xs={12} sm={6} lg={3}>
                                             <Card raised={isSelected}
-                                                  style={{backgroundColor: isSelected ? 'beige' : 'lightgray', userSelect: 'none'}}
+                                                  style={{backgroundColor: isSelected ? 'beige' : 'lightgray', userSelect: 'none', cursor: 'pointer'}}
                                                   onClick={this.togglePlaylist.bind(this, playlist)} >
                                                 <CardMedia image={playlist.images.length && playlist.images[0].url}
                                                            style={{height: '100px'}}
@@ -114,7 +114,7 @@ class PlaylistDialog extends React.Component {
                                     return (
                                         <Grid item xs={12} sm={6} lg={3}>
                                             <Card raised={isSelected}
-                                                  style={{backgroundColor: isSelected ? 'beige' : 'lightgray', userSelect: 'none'}}
+                                                  style={{backgroundColor: isSelected ? 'beige' : 'lightgray', userSelect: 'none', cursor: 'pointer'}}
                                                   onClick={this.togglePlaylist.bind(this, playlist)} >
                                                 <CardMedia image={playlist.images.length && playlist.images[0].url}
                                                            style={{height: '100px'}}

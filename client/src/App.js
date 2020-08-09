@@ -3,6 +3,7 @@ import './App.css';
 import LoginGate from "./components/LoginGate";
 import Header from "./components/Header";
 import Router from "./components/Router";
+import SpotifyPlayer from "./components/SpotifyPlayer";
 
 class App extends React.Component {
 
@@ -17,6 +18,7 @@ class App extends React.Component {
                                 <Router/>
                             </div>
                         </LoginGate>
+                        <SpotifyPlayer/>
                     </div>
                 </header>
             </div>

@@ -1,6 +1,9 @@
 import mirror from "../../util/mirror";
 const spotifyActions = {
-    "GET_PLAYLISTS": null
+    "GET_PLAYLISTS": null,
+    "REGISTER_BROWSER": null,
+    "SPOTIFY_PLAYER_STATE_CHANGE": null,
+    "SPOTIFY_PLAYLIST_SELECTED": null
 };
 
 export default mirror(spotifyActions);

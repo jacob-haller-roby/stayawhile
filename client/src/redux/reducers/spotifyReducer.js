@@ -1,6 +1,6 @@
 import spotifyActions from "../actions/spotifyActions";
 
-const spotifyReducer = (state = {myPlaylists: [], suggestedPlaylists: []}, action) => {
+const spotifyReducer = (state = {myPlaylists: [], suggestedPlaylists: [], currentTrack: {}}, action) => {
     let newState = {...state};
     switch (action.type) {
         case spotifyActions.GET_PLAYLISTS:
@@ -10,6 +10,13 @@ const spotifyReducer = (state = {myPlaylists: [], suggestedPlaylists: []}, actio
             if(action.suggestedPlaylists) {
                 newState.suggestedPlaylists = action.suggestedPlaylists;
             }
+            break;
+        case spotifyActions.SPOTIFY_PLAYER_STATE_CHANGE:
+            newState.currentTrack = action.currentTrack;
+            newState.currentPlaylistUri = action.currentPlaylistUri
+            break;
+        case spotifyActions.SPOTIFY_PLAYLIST_SELECTED:
+            newState.currentPlaylistUri = null;
             break;
         default:
     }

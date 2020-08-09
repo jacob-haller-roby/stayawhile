@@ -5,11 +5,11 @@ import {
     playlistSelector,
     profileNameSelector,
     roomPlaylistsSelector,
-    roomsSelector
+    roomsSelector, spotifyCurrentPlaylistUriSelector, spotifyCurrentTrackSelector
 } from "../redux/selectors/selectors";
 import Homepage from "./Homepage";
 import ActiveRoomAttendee from "./ActiveRoomAttendee";
-import {getPlaylists} from "../redux/actionCreators/spotifyActionCreators";
+import {getPlaylists, playPlaylist} from "../redux/actionCreators/spotifyActionCreators";
 import ActiveRoomOwner from "./ActiveRoomOwner";
 import {saveRoomPlaylists, getRoomPlaylists} from "../redux/actionCreators/roomActionCreators";
 
@@ -25,6 +25,9 @@ class Router extends React.Component {
                                     saveRoomPlaylists={this.props.saveRoomPlaylists}
                                     roomPlaylists={this.props.roomPlaylists}
                                     getRoomPlaylists={this.props.getRoomPlaylists}
+                                    playPlaylist={this.props.playPlaylist}
+                                    currentTrack={this.props.currentTrack}
+                                    currentPlaylistUri={this.props.currentPlaylistUri}
             />;
         } else {
             return <ActiveRoomAttendee room={this.props.currentRoom}/>;
@@ -38,12 +41,15 @@ export default connect(
         currentRoom: currentRoomSelector(state),
         playlists: playlistSelector(state),
         profileName: profileNameSelector(state),
-        roomPlaylists: roomPlaylistsSelector(state)
+        roomPlaylists: roomPlaylistsSelector(state),
+        currentTrack: spotifyCurrentTrackSelector(state),
+        currentPlaylistUri: spotifyCurrentPlaylistUriSelector(state)
     }),
     dispatch => ({
         getPlaylists: () => dispatch(getPlaylists()),
         saveRoomPlaylists: (room, playlists) => dispatch(saveRoomPlaylists(room, playlists)),
-        getRoomPlaylists: (room) => dispatch(getRoomPlaylists(room))
+        getRoomPlaylists: (room) => dispatch(getRoomPlaylists(room)),
+        playPlaylist: (playlistId) => dispatch(playPlaylist(playlistId))
     }),
     (stateProps, dispatchProps) => ({
         ...stateProps,
