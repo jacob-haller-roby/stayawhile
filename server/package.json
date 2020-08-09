@@ -18,7 +18,7 @@
     "source-map-support": "^0.5.19"
   },
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "node dist/server.js --max_old_space_size=4096",
     "inspect": "node --inspect-brk ./dist/server.js",
     "build": "webpack",
     "build-dev": "webpack --mode-development"

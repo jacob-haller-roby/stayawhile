@@ -43,4 +43,9 @@ room.delete('/attend', async (req, res) => {
     await redisClient.departRoom(res.locals.userId);
     res.send(await redisClient.getRoomsByUser(res.locals.userId));
 });
+
+room.post('/playlists/:roomId', async (req, res) => {
+    res.send(await redisClient.saveRoomPlaylists(req.params.roomId, res.locals.userId, req.body.playlists));
+})
+room.get('/playlists/:roomId', async (req, res) => res.send(await redisClient.getRoomPlaylists(req.params.roomId)));
 export default room;

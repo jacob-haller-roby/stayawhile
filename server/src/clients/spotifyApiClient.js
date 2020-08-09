@@ -37,9 +37,11 @@ const spotifyWithCreds = (method) => (uri, body) => async (req, res) => {
     })
         .catch(jsonBody => {
             logger.error("ERROR:", jsonBody);
-            logger.error("Clearing user's refresh token");
-            res.clearCookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN);
-            errorResponseFactory.create401(res, "Access token not found, requesting re-login");
+            if (jsonBody.error.status === 403 || jsonBody.error.status === 401) {
+                logger.error("Clearing user's refresh token");
+                res.clearCookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN);
+                errorResponseFactory.create401(res, "Access token not found, requesting re-login");
+            }
         });
 }
 const getSpotify = (uri) => spotifyWithCreds('GET')(uri, {});
@@ -47,5 +49,24 @@ const postSpotify = spotifyWithCreds('POST');
 
 const spotifyApiClient = {};
 spotifyApiClient.me = getSpotify('me');
+const playlistPagingLoop = async (uri, req, res) => {
+    let response = await getSpotify(uri)(req, res);
+    let playlists = [...response.items];
+    while (response.next) {
+        let next = response.next.split('/v1/')[1].replace('limit=20','');
+        response = await getSpotify(next)(req, res);
+        if(response) {
+            playlists.push(...response.items);
+        }
+    }
+    return playlists;
+}
+spotifyApiClient.playlists = async (req, res) => {
+    return playlistPagingLoop('me/playlists', req, res);
+};
+spotifyApiClient.suggestedPlaylists = async (req, res) => {
+    const playlists = await playlistPagingLoop('users/bezoing/playlists', req, res);
+    return playlists.filter(playlist => playlist.name.includes(':'));
+};
 
 export default spotifyApiClient;

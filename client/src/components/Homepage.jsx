@@ -1,12 +1,12 @@
 import React from "react";
 import {Paper} from "@material-ui/core";
 
-class ActiveRoom extends React.Component {
+class Homepage extends React.Component {
     render() {
         return (
-            <Paper>Active Room</Paper>
+            <Paper>Homepage</Paper>
         )
     }
 };
 
-export default ActiveRoom;
+export default Homepage

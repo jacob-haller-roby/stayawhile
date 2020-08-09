@@ -6,7 +6,9 @@ const roomActions = {
     "CREATE_ROOM": null,
     "INVITATION_RECEIVED": null,
     "JOINED_ROOM": null,
-    "WRONG_PASSWORD": null
+    "WRONG_PASSWORD": null,
+    "SAVE_ROOM_PLAYLISTS": null,
+    "GET_ROOM_PLAYLISTS": null
 };
 
 export default mirror(roomActions);

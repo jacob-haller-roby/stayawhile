@@ -1,15 +1,33 @@
 import React from "react";
 import {connect} from 'react-redux';
-import {currentRoomSelector, roomsSelector} from "../redux/selectors/selectors";
-import RoomList from "./RoomList";
-import ActiveRoom from "./ActiveRoom";
+import {
+    currentRoomSelector,
+    playlistSelector,
+    profileNameSelector,
+    roomPlaylistsSelector,
+    roomsSelector
+} from "../redux/selectors/selectors";
+import Homepage from "./Homepage";
+import ActiveRoomAttendee from "./ActiveRoomAttendee";
+import {getPlaylists} from "../redux/actionCreators/spotifyActionCreators";
+import ActiveRoomOwner from "./ActiveRoomOwner";
+import {saveRoomPlaylists, getRoomPlaylists} from "../redux/actionCreators/roomActionCreators";
 
 class Router extends React.Component {
     render() {
         if (!this.props.currentRoom) {
-            return <RoomList/>;
+            return <Homepage/>;
+        } else if (this.props.profileName === this.props.currentRoom.owner) {
+            return <ActiveRoomOwner room={this.props.currentRoom}
+                                    getPlaylists={this.props.getPlaylists}
+                                    playlists={this.props.playlists}
+                                    profileName={this.props.profileName}
+                                    saveRoomPlaylists={this.props.saveRoomPlaylists}
+                                    roomPlaylists={this.props.roomPlaylists}
+                                    getRoomPlaylists={this.props.getRoomPlaylists}
+            />;
         } else {
-            return <ActiveRoom room={this.props.currentRoom}/>;
+            return <ActiveRoomAttendee room={this.props.currentRoom}/>;
         }
     }
 };
@@ -17,8 +35,20 @@ class Router extends React.Component {
 export default connect(
     state => ({
         myRooms: roomsSelector(state),
-        currentRoom: currentRoomSelector(state)
+        currentRoom: currentRoomSelector(state),
+        playlists: playlistSelector(state),
+        profileName: profileNameSelector(state),
+        roomPlaylists: roomPlaylistsSelector(state)
     }),
     dispatch => ({
+        getPlaylists: () => dispatch(getPlaylists()),
+        saveRoomPlaylists: (room, playlists) => dispatch(saveRoomPlaylists(room, playlists)),
+        getRoomPlaylists: (room) => dispatch(getRoomPlaylists(room))
+    }),
+    (stateProps, dispatchProps) => ({
+        ...stateProps,
+        ...dispatchProps,
+        saveRoomPlaylists: (playlists) => dispatchProps.saveRoomPlaylists(stateProps.currentRoom, playlists),
+        getRoomPlaylists: () => dispatchProps.getRoomPlaylists(stateProps.currentRoom)
     })
 )(Router);

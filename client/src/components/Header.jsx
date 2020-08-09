@@ -47,7 +47,7 @@ class Header extends React.Component {
         this.state = {
             profileMenuOpen: false,
             profileAnchorEl: null,
-            drawerOpen: true,
+            drawerOpen: false,
             createRoomDialogOpen: false
         };
         this.handleToggleProfileMenu = this.handleToggleProfileMenu.bind(this);
@@ -80,6 +80,7 @@ class Header extends React.Component {
 
     handleToggleProfileMenu(event) {
         let {currentTarget} = event;
+        console.log(currentTarget);
         this.setState(prevState => {
             return {
                 profileMenuOpen: !prevState.profileMenuOpen,
@@ -293,10 +294,9 @@ class Header extends React.Component {
                                         vertical: 'bottom',
                                         horizontal: 'center',
                                     }}
-                                    keepMounted
-                                    profileAnchorEl={this.state.profileAnchorEl}
+                                    anchorEl={this.state.profileAnchorEl}
                                     open={Boolean(this.state.profileMenuOpen)}
-                                    onClose={this.closeMenu}
+                                    onClose={this.closeProfileMenu}
                                 >
                                     <MenuItem onClick={this.login}>Change Account</MenuItem>
                                     <MenuItem onClick={this.props.logout.bind(this)}>

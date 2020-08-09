@@ -81,3 +81,19 @@ export const acceptRoomInvite = (password) => dispatch => {
             .catch((e) => {});
     }
 }
+
+export const saveRoomPlaylists = (room, playlists) => dispatch => {
+    api.post(`/room/playlists/${room.id}`, {playlists})
+        .then(res => dispatch({
+            type: roomActions.SAVE_ROOM_PLAYLISTS,
+            playlists: res
+        }))
+};
+
+export const getRoomPlaylists = (room) => dispatch => {
+    api.get(`/room/playlists/${room.id}`)
+        .then(res => dispatch({
+            type: roomActions.GET_ROOM_PLAYLISTS,
+            playlists: res
+        }));
+}

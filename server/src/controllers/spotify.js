@@ -21,6 +21,8 @@ spotify.get('/logout', spotifyAuthorizationClient.logout);
 // API endpoints, userId added to res.locals
 spotify.use(Authenticated);
 spotify.get('/me', async (req, res) => res.send(await spotifyApiClient.me(req, res)));
+spotify.get('/playlists', async (req, res) => res.send(await spotifyApiClient.playlists(req, res)));
+spotify.get('/playlists/suggested', async (req, res) => res.send(await spotifyApiClient.suggestedPlaylists(req, res)));
 
 
 

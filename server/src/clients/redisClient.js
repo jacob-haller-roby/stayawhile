@@ -24,7 +24,9 @@ const keys = {
     roomId: (roomId) => `room:${roomId}`, //hash
     userRooms: (userId) => `user_rooms:${userId}`, //set
     userCurrentRoom: (userId) => `user_current_room:${userId}`, //string
-    roomAttendees: (roomId) => `room_attendees:${roomId}` //set
+    roomAttendees: (roomId) => `room_attendees:${roomId}`, //set
+    roomPlaylists: (roomId) => `room_playlists:${roomId}`, //set
+    playlist: (playlistId) => `playlist:${playlistId}` //hash
 }
 
 //Access Tokens
@@ -63,7 +65,10 @@ redisClient.addRoom = async (ownerId, options) => {
     const roomId = await redisClient.get(keys.roomIdCounter());
     redisClient.sadd(keys.userRooms(ownerId), roomId);
 
-    await redisClient.hmset(keys.roomId(roomId), ...await redisClient.convertJsonToHashArray({id: roomId, owner: ownerId, ...options}));
+    await redisClient.hmset(keys.roomId(roomId), ...await redisClient.convertJsonToHashArray({
+        id: roomId,
+        owner: ownerId, ...options
+    }));
     redisClient.joinRoom(roomId, ownerId);
     return await redisClient.getRoom(roomId);
 };
@@ -78,8 +83,35 @@ redisClient.deleteRoom = async (roomId) => {
 };
 redisClient.getAllRooms = async () => {
     const roomCount = await redisClient.get(keys.roomIdCounter());
-    const roomIds = [...Array(parseInt(roomCount)).keys()].map(i => (i+1).toString());
+    const roomIds = [...Array(parseInt(roomCount)).keys()].map(i => (i + 1).toString());
     return await Promise.all(roomIds.map(redisClient.getRoom)).catch(logger.error);
+};
+redisClient.saveRoomPlaylists = async (roomId, ownerId, playlists) => {
+    const roomOwnerId = await redisClient.hget(keys.roomId(roomId), 'owner');
+    if (roomOwnerId !== ownerId) throw Error('Only owner can modify playlists');
+
+    await redisClient.del(keys.roomPlaylists(roomId));
+    await Promise.all(playlists.map(async playlist => {
+        const redisPlaylist = {
+            name: playlist.name,
+            imageUrl: playlist.images.length && playlist.images[0].url,
+            href: playlist.href, //"https://api.spotify.com/v1/playlists/${id}"
+            uri: playlist.uri, //"spotify:playlist:${id}"
+            id: playlist.id
+        };
+        redisClient.hmset(keys.playlist(playlist.id), ...await redisClient.convertJsonToHashArray(redisPlaylist));
+        redisClient.sadd(keys.roomPlaylists(roomId), playlist.id);
+    }));
+    return await redisClient.getRoomPlaylists(roomId);
+}
+redisClient.getRoomPlaylists = async (roomId) => {
+    return await Promise.all(
+        (await redisClient.smembersa(keys.roomPlaylists(roomId)))
+            .map(async playlistId => await redisClient.getPlaylist(playlistId))
+    );
+};
+redisClient.getPlaylist = async (playlistId) => {
+    return await redisClient.hgetall(keys.playlist(playlistId));
 }
 
 

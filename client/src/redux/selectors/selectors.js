@@ -2,6 +2,7 @@ import {createSelector} from 'reselect';
 
 export const authStateSelector = (state) => state.auth;
 export const roomStateSelector = (state) => state.room;
+export const spotifyStateSelector = (state) => state.spotify;
 
 export const profileSelector = createSelector(
     [authStateSelector],
@@ -45,4 +46,17 @@ export const inviteRoomIdSelector = createSelector(
 export const invitePasswordErrorSelector = createSelector(
     [roomStateSelector],
     (roomState) => roomState.invitePasswordError
-)
+);
+
+export const playlistSelector = createSelector(
+    [spotifyStateSelector],
+    (spotifyState) => ({
+        myPlaylists: spotifyState.myPlaylists,
+        suggestedPlaylists: spotifyState.suggestedPlaylists
+    })
+);
+
+export const roomPlaylistsSelector = createSelector(
+    [roomStateSelector],
+    (roomState) => roomState.roomPlaylists
+);
