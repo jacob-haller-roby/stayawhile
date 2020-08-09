@@ -7,6 +7,7 @@ import Authenticated from "../middleware/Authenticated";
 import redisClient from "../clients/redisClient";
 import bodyParser from 'body-parser';
 import logger from "../util/logger";
+import CONSTANTS from "../constants";
 
 const spotify = express();
 
@@ -24,17 +25,19 @@ spotify.get('/logout', spotifyAuthorizationClient.logout);
 
 // API endpoints, userId added to res.locals
 spotify.use(Authenticated);
-spotify.get('/me', async (req, res) => res.send(await spotifyApiClient.me()(req, res)));
-spotify.get('/playlists', async (req, res) => res.send(await spotifyApiClient.playlists(req, res)));
-spotify.get('/playlists/suggested', async (req, res) => res.send(await spotifyApiClient.suggestedPlaylists(req, res)));
-spotify.put('/register/:deviceId', async (req, res) => res.send(await redisClient.saveDeviceId(res.locals.userId, req.params.deviceId)));
+const getUserId = (req) => req.cookies[CONSTANTS.SPOTIFY_USER_ID];
+spotify.get('/me', async (req, res) => res.send(await spotifyApiClient.me()(getUserId(req))));
+spotify.get('/playlists', async (req, res) => res.send(await spotifyApiClient.playlists()(getUserId(req))));
+spotify.get('/playlists/suggested', async (req, res) => res.send(await spotifyApiClient.suggestedPlaylists()(getUserId(req))));
+spotify.put('/register/:deviceId', async (req, res) => res.send(await redisClient.saveDeviceId(getUserId(req), req.params.deviceId)));
 spotify.put('/play/:playlistId', async (req, res) => {
-    const deviceId = await redisClient.getDeviceId(res.locals.userId);
+    const userId = getUserId(req);
+    const deviceId = await redisClient.getDeviceId(userId);
     const playlistUri = (await redisClient.getPlaylist(req.params.playlistId)).uri;
 
-    await spotifyApiClient.play(playlistUri, deviceId)(req, res);
-    await spotifyApiClient.shuffle()(req, res);
-    await spotifyApiClient.repeat()(req, res);
+    await spotifyApiClient.play(playlistUri, deviceId)(userId);
+    await spotifyApiClient.shuffle()(userId);
+    await spotifyApiClient.repeat()(userId);
 
     res.send({status: "Playing"})
 });

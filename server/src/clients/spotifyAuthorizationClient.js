@@ -4,6 +4,7 @@ import request from 'request';
 import CONSTANTS from '../constants';
 import spotifyApiClient from "./spotifyApiClient";
 import errorResponseFactory from "../util/errorResponseFactory";
+import logger from "../util/logger";
 
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
@@ -77,14 +78,12 @@ spotifyAuthorizationClient.loginCallback = (req, res) => {
                 console.error('ERROR: ' + error);
                 return errorResponseFactory.create401(res, "Invalid login");
             }
-            spotifyApiClient.me(accessToken)(req, res)
+            spotifyApiClient.me()(null, accessToken)
                 .then(async profile => {
-                    // userId -> refreshToken
-                    // userId -> accessToken
-                    // cookie[userId]
                     await redisClient.setAccessToken(profile.id, accessToken);
                     await redisClient.setRefreshToken(profile.id, refreshToken);
                     res.cookie(CONSTANTS.SPOTIFY_USER_ID, profile.id, {httpOnly: true, sameSite: 'strict', secure: true});
+                    res.cookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN, refreshToken, {httpOnly: true, sameSite: 'strict', secure: true});
                     res.redirect('/');
                 });
 
@@ -119,11 +118,11 @@ spotifyAuthorizationClient.refresh = async (req, res) => {
         }
         const accessToken = jsonBody.access_token;
 
-        return spotifyApiClient.me()(req, res)
+        return spotifyApiClient.me()(null, accessToken)
             .then(profile => {
+                logger.debug('Setting new Access Token: ' + accessToken);
                 redisClient.setAccessToken(profile.id, accessToken);
                 redisClient.setRefreshToken(profile.id, refreshToken);
-                console.log(accessToken);
                 res.send({isLoggedIn: true, profile, accessToken})
             });
     });
@@ -139,6 +138,7 @@ spotifyAuthorizationClient.logout = (req, res) => {
     redisClient.deleteAccessToken(userId);
     redisClient.deleteRefreshToken(userId);
     res.clearCookie(CONSTANTS.SPOTIFY_USER_ID);
+    res.clearCookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN);
     return res.send({isLoggedIn: false});
 }
 
