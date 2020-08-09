@@ -28,6 +28,7 @@ class ActiveRoomOwner extends React.Component {
                                      room={this.props.room}
                                      saveRoomPlaylists={this.props.saveRoomPlaylists}
                                      roomPlaylists={this.props.roomPlaylists}
+                                     playPlaylist={this.props.playPlaylist}
                         />
                     </Grid>
                 </Grid>

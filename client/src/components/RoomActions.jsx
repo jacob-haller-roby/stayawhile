@@ -1,25 +1,22 @@
 import React from 'react';
-import {Button, Card, CardActions} from "@material-ui/core";
+import {Card, CardActions} from "@material-ui/core";
 import VoiceListener from "./VoiceListener";
 import PlaylistDialog from "./PlaylistDialog";
 
 class RoomActions extends React.Component {
-    //TODO: put into redux
+    constructor(props) {
+        super(props);
+        this.getVoiceCommands = this.getVoiceCommands.bind(this);
+    }
     getVoiceCommands() {
-        return [
-            {
-                command: 'roll initiative',
-                callback: () => alert('PREPARE FOR BATTLE')
-            },
-            {
-                command: 'roll for initiative',
-                callback: () => alert('PREPARE FOR BATTLE')
-            },
-            {
-                command: this.props.room.title,
-                callback: () => alert('thats the room name!')
-            }
-        ];
+        const playlists = this.props.roomPlaylists || [];
+        return playlists.map(playlist => {
+            const phrases = playlist.phrases || [];
+            return phrases.map(phrase => ({
+                command: phrase,
+                callback: () => this.props.playPlaylist(playlist.id)
+            }));
+        }).flat();
     }
 
     render() {

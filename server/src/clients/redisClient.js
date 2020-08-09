@@ -96,11 +96,14 @@ redisClient.saveRoomPlaylists = async (roomId, ownerId, playlists) => {
 redisClient.getRoomPlaylists = async (roomId) => {
     return await Promise.all(
         (await redisClient.smembersa(redisKeys.roomPlaylists(roomId)))
-            .map(async playlistId => await redisClient.getPlaylist(playlistId))
+            .map(async playlistId => await redisClient.getPlaylist(playlistId, roomId))
     );
 };
-redisClient.getPlaylist = async (playlistId) => {
-    return await redisClient.hgetall(redisKeys.playlist(playlistId));
+redisClient.getPlaylist = async (playlistId, roomId) => {
+    return {
+        ...await redisClient.hgetall(redisKeys.playlist(playlistId)),
+        phrases: roomId && await redisClient.getPlaylistPhrases(roomId, playlistId)
+    };
 };
 redisClient.saveDeviceId = async (userId, deviceId) => {
     await redisClient.set(redisKeys.device(userId), deviceId);
@@ -117,9 +120,17 @@ redisClient.saveCurrentTrack = async (roomId, currentTrack) => {
     }
     redisClient.hmset(redisKeys.currentTrack(roomId), ...await redisClient.convertJsonToHashArray(redisTrack));
     return await redisClient.getCurrentTrack(roomId);
-}
+};
 redisClient.getCurrentTrack = async (roomId) => {
     return await redisClient.hgetall(redisKeys.currentTrack(roomId))
+};
+redisClient.setPlaylistPhrase = async (roomId, playlistId, phraseArray) => {
+    await redisClient.del(redisKeys.roomPlaylistPhrases(roomId, playlistId));
+    redisClient.sadd(redisKeys.roomPlaylistPhrases(roomId, playlistId), phraseArray);
+    return redisClient.getPlaylistPhrases(roomId, playlistId);
+};
+redisClient.getPlaylistPhrases = async (roomId, playlistId) => {
+    return await redisClient.smembersa(redisKeys.roomPlaylistPhrases(roomId, playlistId));
 }
 
 

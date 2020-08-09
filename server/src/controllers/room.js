@@ -48,4 +48,5 @@ room.post('/playlists/:roomId', async (req, res) => {
     res.send(await redisClient.saveRoomPlaylists(req.params.roomId, res.locals.userId, req.body.playlists));
 })
 room.get('/playlists/:roomId', async (req, res) => res.send(await redisClient.getRoomPlaylists(req.params.roomId)));
+room.put('/playlists/:roomId/phrases/:playlistId', async (req, res) => res.send(await redisClient.setPlaylistPhrase(req.params.roomId, req.params.playlistId, req.body.phrases)));
 export default room;
