@@ -1,6 +1,6 @@
 import spotifyActions from "../actions/spotifyActions";
 import api from '../../util/api';
-import {spotifyCurrentTrackSelector} from "../selectors/selectors";
+import {currentRoomSelector, spotifyCurrentTrackSelector} from "../selectors/selectors";
 
 export const getPlaylists = () => dispatch => {
     api.get('/spotify/playlists')
@@ -42,6 +42,9 @@ export const spotifyPlayerStateChange = (spotifyState) => (dispatch, getState) =
             currentTrack: spotifyState.track_window.current_track,
             currentPlaylistUri: spotifyState.context.uri
         });
-        //api.put('/spotify/currentTrack', {currentTrack: spotifyState.track_window.current_track})
+        api.put('/spotify/currentTrack', {
+            currentTrack: spotifyState.track_window.current_track,
+            roomId: currentRoomSelector(getState()).id
+        });
     }
 }

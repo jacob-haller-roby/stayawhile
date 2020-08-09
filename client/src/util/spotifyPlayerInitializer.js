@@ -7,7 +7,7 @@ const initialize = (accessToken) => {
     }
 
     const player = new window.Spotify.Player({
-        name: 'Web Playback SDK Quick Start Player',
+        name: 'Stay A While: Spotify Web Player',
         getOAuthToken: cb => { cb(accessToken); }
     });
 

@@ -1,6 +1,7 @@
 import unpromisedRedis from 'redis';
 import promisifyRedis from 'promisify-redis';
 import logger from "../util/logger";
+import redisKeys from "../util/redisKeys";
 
 const redis = promisifyRedis(unpromisedRedis);
 const redisClient = redis.createClient({
@@ -17,56 +18,43 @@ redisClient.smembersa = async (...args) => {
     return Array.isArray(members) ? members : [members];
 };
 
-const keys = {
-    accessTokenKey: (refreshToken) => `access_token:${refreshToken}`, //string
-    userId: (refreshToken) => `user_id:${refreshToken}`, //string
-    roomIdCounter: () => `room_id_counter`, //string
-    roomId: (roomId) => `room:${roomId}`, //hash
-    userRooms: (userId) => `user_rooms:${userId}`, //set
-    userCurrentRoom: (userId) => `user_current_room:${userId}`, //string
-    roomAttendees: (roomId) => `room_attendees:${roomId}`, //set
-    roomPlaylists: (roomId) => `room_playlists:${roomId}`, //set
-    playlist: (playlistId) => `playlist:${playlistId}`, //hash
-    device: (userId) => `device:${userId}` //string
-}
-
 //Access Tokens
-redisClient.setAccessToken = (refreshToken, accessToken) => redisClient.set(keys.accessTokenKey(refreshToken), accessToken);
-redisClient.getAccessToken = (refreshToken) => redisClient.get(keys.accessTokenKey(refreshToken));
-redisClient.deleteAccessToken = (refreshToken) => redisClient.del(keys.accessTokenKey(refreshToken));
+redisClient.setAccessToken = (userId, accessToken) => redisClient.set(redisKeys.accessTokenKey(userId), accessToken);
+redisClient.getAccessToken = (userId) => redisClient.get(redisKeys.accessTokenKey(userId));
+redisClient.deleteAccessToken = (userId) => redisClient.del(redisKeys.accessTokenKey(userId));
 
-//User Ids
-redisClient.setUserId = (refreshToken, userId) => redisClient.set(keys.userId(refreshToken), userId);
-redisClient.getUserId = (refreshToken) => redisClient.get(keys.userId(refreshToken));
-redisClient.deleteUserId = (refreshToken) => redisClient.del(keys.userId(refreshToken));
+//Refresh Token
+redisClient.setRefreshToken = (userId, refreshToken) => redisClient.set(redisKeys.refreshToken(userId), refreshToken);
+redisClient.getRefreshToken = (userId) => redisClient.get(redisKeys.refreshToken(userId));
+redisClient.deleteRefreshToken = (userId) => redisClient.del(redisKeys.refreshToken(userId));
 
 //Rooms
 redisClient.getRoom = async (roomId) => ({
-    ...await redisClient.hgetall(keys.roomId(roomId)),
-    attendees: await redisClient.smembersa(keys.roomAttendees(roomId))
+    ...await redisClient.hgetall(redisKeys.roomId(roomId)),
+    attendees: await redisClient.smembersa(redisKeys.roomAttendees(roomId))
 });
 redisClient.joinRoom = async (roomId, userId) => {
-    await redisClient.sadd(keys.userRooms(userId), roomId);
+    await redisClient.sadd(redisKeys.userRooms(userId), roomId);
 };
 redisClient.leaveRoom = async (roomId, userId) => {
-    await redisClient.srem(keys.userRooms(userId), roomId);
+    await redisClient.srem(redisKeys.userRooms(userId), roomId);
 };
 redisClient.attendRoom = async (roomId, userId) => {
-    await redisClient.set(keys.userCurrentRoom(userId), roomId);
-    await redisClient.sadd(keys.roomAttendees(roomId), userId);
+    await redisClient.set(redisKeys.userCurrentRoom(userId), roomId);
+    await redisClient.sadd(redisKeys.roomAttendees(roomId), userId);
 }
 redisClient.departRoom = async (userId) => {
-    await redisClient.smembersa(keys.userRooms(userId))
-        .then(async roomIds => await Promise.all(roomIds.map(roomId => redisClient.srem(keys.roomAttendees(roomId), userId))));
-    await redisClient.del(keys.userCurrentRoom(userId));
+    await redisClient.smembersa(redisKeys.userRooms(userId))
+        .then(async roomIds => await Promise.all(roomIds.map(roomId => redisClient.srem(redisKeys.roomAttendees(roomId), userId))));
+    await redisClient.del(redisKeys.userCurrentRoom(userId));
 }
 redisClient.addRoom = async (ownerId, options) => {
-    await redisClient.setnx(keys.roomIdCounter(), 0);
-    await redisClient.incr(keys.roomIdCounter());
-    const roomId = await redisClient.get(keys.roomIdCounter());
-    redisClient.sadd(keys.userRooms(ownerId), roomId);
+    await redisClient.setnx(redisKeys.roomIdCounter(), 0);
+    await redisClient.incr(redisKeys.roomIdCounter());
+    const roomId = await redisClient.get(redisKeys.roomIdCounter());
+    redisClient.sadd(redisKeys.userRooms(ownerId), roomId);
 
-    await redisClient.hmset(keys.roomId(roomId), ...await redisClient.convertJsonToHashArray({
+    await redisClient.hmset(redisKeys.roomId(roomId), ...await redisClient.convertJsonToHashArray({
         id: roomId,
         owner: ownerId, ...options
     }));
@@ -74,24 +62,24 @@ redisClient.addRoom = async (ownerId, options) => {
     return await redisClient.getRoom(roomId);
 };
 redisClient.getRoomsByUser = async (userId) => {
-    const roomIds = await redisClient.smembersa(keys.userRooms(userId));
+    const roomIds = await redisClient.smembersa(redisKeys.userRooms(userId));
     return await Promise.all(roomIds.map(redisClient.getRoom));
 };
 redisClient.deleteRoom = async (roomId) => {
-    redisClient.del(keys.roomId(roomId));
-    redisClient.smembersa(keys.roomAttendees(roomId)).then(members => members.map(userId => redisClient.leaveRoom(roomId, userId)));
-    redisClient.del(keys.roomAttendees(roomId));
+    redisClient.del(redisKeys.roomId(roomId));
+    redisClient.smembersa(redisKeys.roomAttendees(roomId)).then(members => members.map(userId => redisClient.leaveRoom(roomId, userId)));
+    redisClient.del(redisKeys.roomAttendees(roomId));
 };
 redisClient.getAllRooms = async () => {
-    const roomCount = await redisClient.get(keys.roomIdCounter());
+    const roomCount = await redisClient.get(redisKeys.roomIdCounter());
     const roomIds = [...Array(parseInt(roomCount)).keys()].map(i => (i + 1).toString());
     return await Promise.all(roomIds.map(redisClient.getRoom)).catch(logger.error);
 };
 redisClient.saveRoomPlaylists = async (roomId, ownerId, playlists) => {
-    const roomOwnerId = await redisClient.hget(keys.roomId(roomId), 'owner');
+    const roomOwnerId = await redisClient.hget(redisKeys.roomId(roomId), 'owner');
     if (roomOwnerId !== ownerId) throw Error('Only owner can modify playlists');
 
-    await redisClient.del(keys.roomPlaylists(roomId));
+    await redisClient.del(redisKeys.roomPlaylists(roomId));
     await Promise.all(playlists.map(async playlist => {
         const redisPlaylist = {
             name: playlist.name,
@@ -100,26 +88,38 @@ redisClient.saveRoomPlaylists = async (roomId, ownerId, playlists) => {
             uri: playlist.uri, //"spotify:playlist:${id}"
             id: playlist.id
         };
-        redisClient.hmset(keys.playlist(playlist.id), ...await redisClient.convertJsonToHashArray(redisPlaylist));
-        redisClient.sadd(keys.roomPlaylists(roomId), playlist.id);
+        redisClient.hmset(redisKeys.playlist(playlist.id), ...await redisClient.convertJsonToHashArray(redisPlaylist));
+        redisClient.sadd(redisKeys.roomPlaylists(roomId), playlist.id);
     }));
     return await redisClient.getRoomPlaylists(roomId);
 }
 redisClient.getRoomPlaylists = async (roomId) => {
     return await Promise.all(
-        (await redisClient.smembersa(keys.roomPlaylists(roomId)))
+        (await redisClient.smembersa(redisKeys.roomPlaylists(roomId)))
             .map(async playlistId => await redisClient.getPlaylist(playlistId))
     );
 };
 redisClient.getPlaylist = async (playlistId) => {
-    return await redisClient.hgetall(keys.playlist(playlistId));
+    return await redisClient.hgetall(redisKeys.playlist(playlistId));
 };
 redisClient.saveDeviceId = async (userId, deviceId) => {
-    await redisClient.set(keys.device(userId), deviceId);
+    await redisClient.set(redisKeys.device(userId), deviceId);
     return await redisClient.getDeviceId(userId);
 };
 redisClient.getDeviceId = async (userId) => {
-    return await redisClient.get(keys.device(userId));
+    return await redisClient.get(redisKeys.device(userId));
+};
+redisClient.saveCurrentTrack = async (roomId, currentTrack) => {
+    const redisTrack = {
+        imageUrl: currentTrack.album.images[0].url,
+        artist: currentTrack.artists.map(artist => artist.name).join(' & '),
+        uri: currentTrack.uri
+    }
+    redisClient.hmset(redisKeys.currentTrack(roomId), ...await redisClient.convertJsonToHashArray(redisTrack));
+    return await redisClient.getCurrentTrack(roomId);
+}
+redisClient.getCurrentTrack = async (roomId) => {
+    return await redisClient.hgetall(redisKeys.currentTrack(roomId))
 }
 
 

@@ -36,7 +36,13 @@ class ActiveRoomOwner extends React.Component {
                         const isPlaying = playlist.uri === this.props.currentPlaylistUri;
                         return (
                             <Grid item xs={12} sm={6} lg={3}>
-                                <Card onClick={this.props.playPlaylist.bind(this, playlist.id)} raised={isPlaying} style={{backgroundColor: isPlaying ? 'beige' : 'lightgray', userSelect: 'none', cursor: 'pointer'}}>
+                                <Card onClick={this.props.playPlaylist.bind(this, playlist.id)}
+                                      raised={isPlaying}
+                                      style={{
+                                          backgroundColor: isPlaying ? 'beige' : 'lightgray',
+                                          userSelect: 'none', cursor: 'pointer',
+                                          pointerEvents: isPlaying ? 'none' : 'auto'
+                                      }}>
                                     <CardMedia image={playlist.imageUrl}
                                                style={{height: '100px'}}
                                                title={playlist.name}/>

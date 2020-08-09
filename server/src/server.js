@@ -4,6 +4,7 @@ import path from 'path';
 import spotify from "./controllers/spotify";
 import logger from "./util/logger";
 import room from "./controllers/room";
+import redisSubscriberClient from "./clients/redisSubscriber";
 
 logger.debug(process.env);
 
