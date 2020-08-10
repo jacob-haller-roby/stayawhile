@@ -20,7 +20,9 @@ spotify.get('/', (req, res) => {
 // Authorization Endpoints
 spotify.get('/login', spotifyAuthorizationClient.login);
 spotify.get('/callback', spotifyAuthorizationClient.loginCallback);
-spotify.get('/refresh', spotifyAuthorizationClient.refresh);
+spotify.get('/refresh', async (req, res) => {
+    return await spotifyAuthorizationClient.refresh(req, res);
+});
 spotify.get('/logout', spotifyAuthorizationClient.logout);
 
 // API endpoints, userId added to res.locals

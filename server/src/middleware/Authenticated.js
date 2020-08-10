@@ -7,11 +7,11 @@ export default async (req, res, next) => {
     const refreshToken = req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN];
 
     if (!userId || !refreshToken) {
-        return errorResponseFactory.create401(res, "No login detected");
+        return errorResponseFactory.create401(req, res, "No login detected");
     }
 
     if (await redisClient.getRefreshToken(userId) !== refreshToken) {
-        return errorResponseFactory.create401(res, "Invalid Login");
+        return errorResponseFactory.create401(req, res, "Invalid Login");
     };
     next();
 };

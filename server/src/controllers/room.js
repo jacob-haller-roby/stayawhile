@@ -27,7 +27,7 @@ room.post('/membership/:roomId', async (req, res) => {
         await redisClient.joinRoom(req.params.roomId, getUserId(req));
         res.send(await redisClient.getRoomsByUser(getUserId(req)));
     } else {
-        errorResponseFactory.create403(res, "Incorrect Password");
+        errorResponseFactory.create403(req, res, "Incorrect Password");
     }
 });
 room.delete('/membership/:roomId', async (req, res) => {
@@ -50,5 +50,9 @@ room.post('/playlists/:roomId', async (req, res) => {
     res.send(await redisClient.saveRoomPlaylists(req.params.roomId, getUserId(req), req.body.playlists));
 })
 room.get('/playlists/:roomId', async (req, res) => res.send(await redisClient.getRoomPlaylists(req.params.roomId)));
-room.put('/playlists/:roomId/phrases/:playlistId', async (req, res) => res.send(await redisClient.setPlaylistPhrase(req.params.roomId, req.params.playlistId, req.body.phrases)));
+room.put('/playlists/:roomId/phrases/:playlistId', async (req, res) => {
+    logger.debug(req.body);
+    logger.debug(req.params);
+    res.send(await redisClient.setPlaylistPhrase(req.params.roomId, req.params.playlistId, req.body.phrases))
+});
 export default room;

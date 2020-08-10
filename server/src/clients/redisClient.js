@@ -126,8 +126,10 @@ redisClient.getCurrentTrack = async (roomId) => {
 };
 redisClient.setPlaylistPhrase = async (roomId, playlistId, phraseArray) => {
     await redisClient.del(redisKeys.roomPlaylistPhrases(roomId, playlistId));
-    redisClient.sadd(redisKeys.roomPlaylistPhrases(roomId, playlistId), phraseArray);
-    return redisClient.getPlaylistPhrases(roomId, playlistId);
+    if (!!phraseArray && phraseArray.length) {
+        await redisClient.sadd(redisKeys.roomPlaylistPhrases(roomId, playlistId), phraseArray);
+    }
+    return await redisClient.getPlaylistPhrases(roomId, playlistId);
 };
 redisClient.getPlaylistPhrases = async (roomId, playlistId) => {
     return await redisClient.smembersa(redisKeys.roomPlaylistPhrases(roomId, playlistId));

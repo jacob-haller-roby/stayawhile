@@ -27,6 +27,17 @@ const roomReducer = (state = {rooms: [], roomPlaylists: []}, action) => {
         case roomActions.SAVE_ROOM_PLAYLISTS:
             newState.roomPlaylists = action.playlists;
             break;
+        case roomActions.SET_ROOM_PLAYLIST_PHRASES:
+            newState.roomPlaylists = newState.roomPlaylists.map(playlist => {
+                if (playlist.id === action.playlistId) {
+                    return {
+                        ...playlist,
+                        phrases: action.phrases
+                    }
+                }
+                return playlist;
+            });
+            break;
         default:
     }
     return newState;

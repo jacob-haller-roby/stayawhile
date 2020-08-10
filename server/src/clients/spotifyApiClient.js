@@ -49,18 +49,6 @@ const spotifyWithCreds = (method) =>
                 resolve(jsonBody);
             })
         })
-            .then(callback);
-            //FIXME: MOVE TO CONTROLLER?
-            //
-            // .catch(jsonBody => {
-            //
-            //     logger.error("ERROR:", jsonBody);
-            //     if (jsonBody.error.status === 401) {
-            //         logger.error("Clearing user's refresh token");
-            //         res.clearCookie(CONSTANTS.SPOTIFY_USER_ID);
-            //         errorResponseFactory.create401(res, "Access token not found, requesting re-login");
-            //     }
-            // });
 }
 
 const getSpotify = spotifyWithCreds('GET');
@@ -73,7 +61,7 @@ spotifyApiClient.getDevices = () => getSpotify('me/player/devices');
 spotifyApiClient.getStatus = () => getSpotify('me/player');
 spotifyApiClient.play = (spotify_uri, deviceId) => putSpotify('me/player/play', {device_id: deviceId}, {context_uri: spotify_uri});
 spotifyApiClient.playTrack = (trackUri, deviceId) => putSpotify('me/player/play', {device_id: deviceId}, {uris: [trackUri]});
-spotifyApiClient.pause = putSpotify('me/player/pause');
+spotifyApiClient.pause = () => putSpotify('me/player/pause');
 spotifyApiClient.shuffle = () => putSpotify('me/player/shuffle', {state: true});
 spotifyApiClient.repeat = () => putSpotify('me/player/repeat', {state: 'context'});
 spotifyApiClient.next = () => postSpotify('me/player/next');
@@ -91,6 +79,9 @@ const playlistPagingLoop = (uri) => async (userId) => {
     return playlists;
 }
 spotifyApiClient.playlists = () => playlistPagingLoop('me/playlists');
-spotifyApiClient.suggestedPlaylists = (userId) => async () => (await playlistPagingLoop('users/bezoing/playlists')(userId, null, (playlists => playlists.filter(playlists.name.includes(':')))));
+spotifyApiClient.suggestedPlaylists = () => async (userId) => {
+    const suggestedPlaylists = await playlistPagingLoop('users/bezoing/playlists')(userId);
+    return suggestedPlaylists.filter(playlist => playlist.name.includes(':'));
+};
 
 export default spotifyApiClient;

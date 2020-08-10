@@ -11,7 +11,7 @@ import Homepage from "./Homepage";
 import ActiveRoomAttendee from "./ActiveRoomAttendee";
 import {getPlaylists, playPlaylist} from "../redux/actionCreators/spotifyActionCreators";
 import ActiveRoomOwner from "./ActiveRoomOwner";
-import {saveRoomPlaylists, getRoomPlaylists} from "../redux/actionCreators/roomActionCreators";
+import {saveRoomPlaylists, getRoomPlaylists, saveRoomPlaylistPhrases} from "../redux/actionCreators/roomActionCreators";
 
 class Router extends React.Component {
     render() {
@@ -28,6 +28,7 @@ class Router extends React.Component {
                                     playPlaylist={this.props.playPlaylist}
                                     currentTrack={this.props.currentTrack}
                                     currentPlaylistUri={this.props.currentPlaylistUri}
+                                    saveRoomPlaylistPhrases={this.props.saveRoomPlaylistPhrases}
             />;
         } else {
             return <ActiveRoomAttendee room={this.props.currentRoom}/>;
@@ -49,7 +50,8 @@ export default connect(
         getPlaylists: () => dispatch(getPlaylists()),
         saveRoomPlaylists: (room, playlists) => dispatch(saveRoomPlaylists(room, playlists)),
         getRoomPlaylists: (room) => dispatch(getRoomPlaylists(room)),
-        playPlaylist: (playlistId) => dispatch(playPlaylist(playlistId))
+        playPlaylist: (playlistId) => dispatch(playPlaylist(playlistId)),
+        saveRoomPlaylistPhrases: (roomId, playlistId, phraseArray) => dispatch(saveRoomPlaylistPhrases(roomId, playlistId, phraseArray))
     }),
     (stateProps, dispatchProps) => ({
         ...stateProps,

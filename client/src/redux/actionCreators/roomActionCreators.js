@@ -96,4 +96,13 @@ export const getRoomPlaylists = (room) => dispatch => {
             type: roomActions.GET_ROOM_PLAYLISTS,
             playlists: res
         }));
+};
+
+export const saveRoomPlaylistPhrases = (roomId, playlistId, phraseArray) => dispatch => {
+    api.put(`/room/playlists/${roomId}/phrases/${playlistId}`, {phrases: phraseArray})
+        .then(res => dispatch({
+            type: roomActions.SET_ROOM_PLAYLIST_PHRASES,
+            playlistId,
+            phrases: res
+        }));
 }

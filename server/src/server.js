@@ -4,7 +4,7 @@ import path from 'path';
 import spotify from "./controllers/spotify";
 import logger from "./util/logger";
 import room from "./controllers/room";
-import redisSubscriberClient from "./clients/redisSubscriber";
+import Authenticated from "./middleware/Authenticated";
 
 logger.debug(process.env);
 
@@ -15,9 +15,6 @@ app.use((req, res, next) => {
    next();
 });
 app.use(express.static(path.join(__dirname, 'build')));
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
 
 app.get('/gameOn/:roomId', (req, res) => {
     res.cookie("inviteRoomId", req.params.roomId);
@@ -27,6 +24,10 @@ app.get('/gameOn/:roomId', (req, res) => {
 app.use('/spotify', spotify);
 app.use('/room', room);
 
+app.use(Authenticated);
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 
 app.listen(process.env.SERVER_PORT, '0.0.0.0');

@@ -76,7 +76,7 @@ spotifyAuthorizationClient.loginCallback = (req, res) => {
                 //redisClient.setAccessToken(refresh_token, access_token);
             } else {
                 console.error('ERROR: ' + error);
-                return errorResponseFactory.create401(res, "Invalid login");
+                return errorResponseFactory.create401(req, res, "Invalid login");
             }
             spotifyApiClient.me()(null, accessToken)
                 .then(async profile => {
@@ -98,7 +98,7 @@ spotifyAuthorizationClient.refresh = async (req, res) => {
         return res.send({isLoggedIn: false});
     }
 
-    const refreshToken = await redisClient.getRefreshToken(userId);
+    const refreshToken = req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN] || await redisClient.getRefreshToken(userId);
     const options = {
         url: 'https://accounts.spotify.com/api/token',
         form: {

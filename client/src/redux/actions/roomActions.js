@@ -8,7 +8,8 @@ const roomActions = {
     "JOINED_ROOM": null,
     "WRONG_PASSWORD": null,
     "SAVE_ROOM_PLAYLISTS": null,
-    "GET_ROOM_PLAYLISTS": null
+    "GET_ROOM_PLAYLISTS": null,
+    "SET_ROOM_PLAYLIST_PHRASES": null
 };
 
 export default mirror(roomActions);

@@ -1,18 +1,41 @@
 import React from "react";
-import {Card, CardContent, CardMedia, Grid, Typography} from "@material-ui/core";
+import {Card, CardContent, CardMedia, CardActions, Grid, Typography, IconButton} from "@material-ui/core";
 import RoomActions from "./RoomActions";
-import SpotifyPlayer from "./SpotifyPlayer";
+import PlaylistPhraseDialog from "./PlaylistPhraseDialog";
+import {Chat} from "@material-ui/icons";
+import {saveRoomPlaylistPhrases} from "../redux/actionCreators/roomActionCreators";
 
 
 class ActiveRoomOwner extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            playlistPhraseDialogOpen: false,
+            editPlaylist: {}
+        }
+        this.playlistPhraseDialogClose = this.playlistPhraseDialogClose.bind(this);
+        this.playlistPhraseDialogOpen = this.playlistPhraseDialogOpen.bind(this);
+    }
     componentDidMount() {
         this.props.getPlaylists();
         this.props.getRoomPlaylists();
     }
 
+    playlistPhraseDialogOpen(editPlaylist) {
+        this.setState({playlistPhraseDialogOpen: true, editPlaylist});
+    }
+
+    playlistPhraseDialogClose() {
+        this.setState({playlistPhraseDialogOpen: false, editPlaylist: {}});
+    }
+
     render() {
         return (
             <React.Fragment>
+                <PlaylistPhraseDialog open={this.state.playlistPhraseDialogOpen}
+                                      onClose={this.playlistPhraseDialogClose}
+                                      playlist={this.state.editPlaylist}
+                                      saveRoomPlaylistPhrases={(phrases) => this.props.saveRoomPlaylistPhrases(this.props.room.id, this.state.editPlaylist.id, phrases)}/>
                 <Grid container justify='center' spacing={3}>
                     <Grid item xs={12}>
                         <Card>
@@ -37,21 +60,29 @@ class ActiveRoomOwner extends React.Component {
                         const isPlaying = playlist.uri === this.props.currentPlaylistUri;
                         return (
                             <Grid item xs={12} sm={6} lg={3}>
-                                <Card onClick={this.props.playPlaylist.bind(this, playlist.id)}
-                                      raised={isPlaying}
+                                <Card raised={isPlaying}
                                       style={{
                                           backgroundColor: isPlaying ? 'beige' : 'lightgray',
-                                          userSelect: 'none', cursor: 'pointer',
-                                          pointerEvents: isPlaying ? 'none' : 'auto'
+                                          userSelect: 'none',
                                       }}>
-                                    <CardMedia image={playlist.imageUrl}
-                                               style={{height: '100px'}}
+                                    <CardMedia onClick={this.props.playPlaylist.bind(this, playlist.id)}
+                                               image={playlist.imageUrl}
+                                               style={{
+                                                   height: '100px',
+                                                   cursor: 'pointer',
+                                                   pointerEvents: isPlaying ? 'none' : 'auto'
+                                               }}
                                                title={playlist.name}/>
                                     <CardContent>
                                         <Typography gutterBottom variant="caption" component="p" noWrap>
                                             {playlist.name}
                                         </Typography>
                                     </CardContent>
+                                    <CardActions>
+                                        <IconButton onClick={this.playlistPhraseDialogOpen.bind(this, playlist)} edge="end">
+                                            <Chat/>
+                                        </IconButton>
+                                    </CardActions>
                                 </Card>
                             </Grid>
                         );
