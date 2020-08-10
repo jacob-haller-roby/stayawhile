@@ -105,4 +105,9 @@ export const saveRoomPlaylistPhrases = (roomId, playlistId, phraseArray) => disp
             playlistId,
             phrases: res
         }));
-}
+};
+
+export const receiveSpeech = (speech) => ({
+    type: roomActions.RECEIVE_SPEECH,
+    speech
+});

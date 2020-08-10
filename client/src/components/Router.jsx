@@ -5,13 +5,18 @@ import {
     playlistSelector,
     profileNameSelector,
     roomPlaylistsSelector,
-    roomsSelector, spotifyCurrentPlaylistUriSelector, spotifyCurrentTrackSelector
+    roomsSelector, speechSelector, spotifyCurrentPlaylistUriSelector, spotifyCurrentTrackSelector
 } from "../redux/selectors/selectors";
 import Homepage from "./Homepage";
 import ActiveRoomAttendee from "./ActiveRoomAttendee";
 import {getPlaylists, playPlaylist} from "../redux/actionCreators/spotifyActionCreators";
 import ActiveRoomOwner from "./ActiveRoomOwner";
-import {saveRoomPlaylists, getRoomPlaylists, saveRoomPlaylistPhrases} from "../redux/actionCreators/roomActionCreators";
+import {
+    saveRoomPlaylists,
+    getRoomPlaylists,
+    saveRoomPlaylistPhrases,
+    receiveSpeech
+} from "../redux/actionCreators/roomActionCreators";
 
 class Router extends React.Component {
     render() {
@@ -29,6 +34,8 @@ class Router extends React.Component {
                                     currentTrack={this.props.currentTrack}
                                     currentPlaylistUri={this.props.currentPlaylistUri}
                                     saveRoomPlaylistPhrases={this.props.saveRoomPlaylistPhrases}
+                                    receiveSpeech={this.props.receiveSpeech}
+                                    speechLog={this.props.speechLog}
             />;
         } else {
             return <ActiveRoomAttendee room={this.props.currentRoom}/>;
@@ -44,14 +51,16 @@ export default connect(
         profileName: profileNameSelector(state),
         roomPlaylists: roomPlaylistsSelector(state),
         currentTrack: spotifyCurrentTrackSelector(state),
-        currentPlaylistUri: spotifyCurrentPlaylistUriSelector(state)
+        currentPlaylistUri: spotifyCurrentPlaylistUriSelector(state),
+        speechLog: speechSelector(state)
     }),
     dispatch => ({
         getPlaylists: () => dispatch(getPlaylists()),
         saveRoomPlaylists: (room, playlists) => dispatch(saveRoomPlaylists(room, playlists)),
         getRoomPlaylists: (room) => dispatch(getRoomPlaylists(room)),
         playPlaylist: (playlistId) => dispatch(playPlaylist(playlistId)),
-        saveRoomPlaylistPhrases: (roomId, playlistId, phraseArray) => dispatch(saveRoomPlaylistPhrases(roomId, playlistId, phraseArray))
+        saveRoomPlaylistPhrases: (roomId, playlistId, phraseArray) => dispatch(saveRoomPlaylistPhrases(roomId, playlistId, phraseArray)),
+        receiveSpeech: (speech) => dispatch(receiveSpeech(speech))
     }),
     (stateProps, dispatchProps) => ({
         ...stateProps,

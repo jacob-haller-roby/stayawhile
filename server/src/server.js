@@ -5,6 +5,7 @@ import spotify from "./controllers/spotify";
 import logger from "./util/logger";
 import room from "./controllers/room";
 import Authenticated from "./middleware/Authenticated";
+import cookieParser from 'cookie-parser';
 
 logger.debug(process.env);
 
@@ -24,6 +25,7 @@ app.get('/gameOn/:roomId', (req, res) => {
 app.use('/spotify', spotify);
 app.use('/room', room);
 
+app.use(cookieParser())
 app.use(Authenticated);
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));

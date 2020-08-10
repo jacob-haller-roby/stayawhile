@@ -8,6 +8,7 @@ import redisClient from "../clients/redisClient";
 import bodyParser from 'body-parser';
 import logger from "../util/logger";
 import CONSTANTS from "../constants";
+import errorResponseFactory from "../util/errorResponseFactory";
 
 const spotify = express();
 
@@ -31,22 +32,57 @@ const getUserId = (req) => req.cookies[CONSTANTS.SPOTIFY_USER_ID];
 spotify.get('/me', async (req, res) => res.send(await spotifyApiClient.me()(getUserId(req))));
 spotify.get('/playlists', async (req, res) => res.send(await spotifyApiClient.playlists()(getUserId(req))));
 spotify.get('/playlists/suggested', async (req, res) => res.send(await spotifyApiClient.suggestedPlaylists()(getUserId(req))));
-spotify.put('/register/:deviceId', async (req, res) => res.send(await redisClient.saveDeviceId(getUserId(req), req.params.deviceId)));
+spotify.put('/register/:deviceId', async (req, res) => {
+    // Use John Cage 4:33 to quietly initialize the web player.  :)
+    await spotifyApiClient.playTrack('spotify:track:2bNCdW4rLnCTzgqUXTTDO1', req.params.deviceId)(getUserId(req));
+    res.send({deviceId: await redisClient.saveDeviceId(getUserId(req), req.params.deviceId)})
+});
 spotify.put('/play/:playlistId', async (req, res) => {
     const userId = getUserId(req);
     const deviceId = await redisClient.getDeviceId(userId);
-    const playlistUri = (await redisClient.getPlaylist(req.params.playlistId)).uri;
+    const playlist = await redisClient.getPlaylist(req.params.playlistId);
 
-    await spotifyApiClient.play(playlistUri, deviceId)(userId);
-    await spotifyApiClient.shuffle()(userId);
-    await spotifyApiClient.repeat()(userId);
+    let status = await spotifyApiClient.getStatus()(userId);
+
+    const shuffle = true;
+    if (status.shuffle_state !== shuffle) {
+        logger.debug('setting shuffle state')
+        await spotifyApiClient.shuffle(shuffle)(userId);
+    }
+    await spotifyApiClient.play(playlist.uri, deviceId)(userId);
+    const repeat = 'context';
+    if (status.repeat_state !== repeat) {
+        logger.debug('setting repeat state');
+        await spotifyApiClient.repeat(repeat)(userId);
+    }
 
     res.send({status: "Playing"})
 });
 spotify.put('/currentTrack', async (req, res) => {
-    await redisClient.saveCurrentTrack(req.body.roomId, req.body.currentTrack);
-    res.send({status: "Playing"});
+    const room = await redisClient.getRoom(req.body.roomId);
+    if (getUserId(req) === room.owner) {
+        await redisClient.saveCurrentTrack(req.body.roomId, req.body.currentTrack);
+        return res.send({status: "Playing"});
+    } else {
+        return errorResponseFactory.create403(req, res, "Only the room owner may change the room's track");
+    }
 });
+spotify.post('/next', async (req, res) => res.send(await spotifyApiClient.next()(getUserId(req))));
+spotify.post('/previous', async (req, res) => res.send(await spotifyApiClient.previous()(getUserId(req))));
+spotify.post('/pauseOrPlay', async (req, res) => {
+    const status = await spotifyApiClient.getStatus()(getUserId(req));
+    logger.debug(status);
+    if (status.is_playing) {
+        logger.debug('pausing')
+        await spotifyApiClient.pause()(getUserId(req));
+        res.send({status: 'Paused'});
+    } else {
+        logger.debug('playing')
+        await spotifyApiClient.play()(getUserId(req));
+        res.send({status: 'Playing'});
+    }
+});
+
 
 
 export default spotify;

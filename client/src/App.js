@@ -14,12 +14,12 @@ class App extends React.Component {
                     <div style={{flexGrow: 1, width: '90%'}}>
                         <LoginGate>
                             <Header/>
-                            <div style={{marginTop: '80px'}}>
+                            <div style={{marginTop: '80px', marginBottom: '120px'}}>
                                 <Router/>
                             </div>
                         </LoginGate>
-                        <SpotifyPlayer/>
                     </div>
+                    <SpotifyPlayer/>
                 </header>
             </div>
         );

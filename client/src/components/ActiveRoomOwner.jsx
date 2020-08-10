@@ -2,7 +2,7 @@ import React from "react";
 import {Card, CardContent, CardMedia, CardActions, Grid, Typography, IconButton} from "@material-ui/core";
 import RoomActions from "./RoomActions";
 import PlaylistPhraseDialog from "./PlaylistPhraseDialog";
-import {Chat} from "@material-ui/icons";
+import {Chat, PlayArrow} from "@material-ui/icons";
 import {saveRoomPlaylistPhrases} from "../redux/actionCreators/roomActionCreators";
 
 
@@ -52,6 +52,8 @@ class ActiveRoomOwner extends React.Component {
                                      saveRoomPlaylists={this.props.saveRoomPlaylists}
                                      roomPlaylists={this.props.roomPlaylists}
                                      playPlaylist={this.props.playPlaylist}
+                                     receiveSpeech={this.props.receiveSpeech}
+                                     speechLog={this.props.speechLog}
                         />
                     </Grid>
                 </Grid>
@@ -81,6 +83,10 @@ class ActiveRoomOwner extends React.Component {
                                     <CardActions>
                                         <IconButton onClick={this.playlistPhraseDialogOpen.bind(this, playlist)} edge="end">
                                             <Chat/>
+                                        </IconButton>
+                                        <div style={{flexGrow:1}}/>
+                                        <IconButton onClick={this.props.playPlaylist.bind(this, playlist.id)} disabled={isPlaying}>
+                                            <PlayArrow style={{color: isPlaying ? 'yellowgreen' : 'rgba(0, 0, 0, 0.54)'}}/>
                                         </IconButton>
                                     </CardActions>
                                 </Card>

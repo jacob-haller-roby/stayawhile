@@ -10,7 +10,7 @@ const authReducer = (state = {}, action) => {
             newState.verifiedLogin = true;
             newState.accessToken = action.accessToken;
             if (newState.isLoggedIn) {
-                initialize(action.accessToken, action.asyncDispatch);
+                initialize(action.accessToken);
             }
             break;
         case authActions.GET_PROFILE:

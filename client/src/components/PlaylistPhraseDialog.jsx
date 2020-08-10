@@ -20,13 +20,14 @@ class PlaylistPhraseDialog extends React.Component {
         this.state = {
             phrases: this.props.playlist.phrases || [],
             open: false,
-            newPhrase: ''
+            newPhrase: '',
         };
         this.onClose = this.onClose.bind(this);
         this.removePhrase = this.removePhrase.bind(this);
         this.setNewPhrase = this.setNewPhrase.bind(this);
         this.addPhrase = this.addPhrase.bind(this);
         this.savePhrases = this.savePhrases.bind(this);
+        this.hasChanges = this.hasChanges.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -67,6 +68,12 @@ class PlaylistPhraseDialog extends React.Component {
         this.onClose();
     }
 
+    hasChanges() {
+        const initialPhrases = this.props.playlist.phrases || [];
+        return !(initialPhrases.length === this.state.phrases.length &&
+        this.state.phrases.every(phrase => initialPhrases.includes(phrase)))
+    }
+
     render() {
         return (
             <Dialog open={this.state.open} onClose={this.onClose}>
@@ -85,7 +92,7 @@ class PlaylistPhraseDialog extends React.Component {
                         })}
                         <ListItem>
                             <TextField label="New Phrase" onChange={this.setNewPhrase} value={this.state.newPhrase} fullWidth/>
-                            <IconButton onClick={this.addPhrase} edge="end">
+                            <IconButton onClick={this.addPhrase} edge="end" disabled={this.state.newPhrase === ''}>
                                 <AddCircleOutline/>
                             </IconButton>
                         </ListItem>
@@ -93,7 +100,7 @@ class PlaylistPhraseDialog extends React.Component {
 
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={this.savePhrases} color="primary">Save</Button>
+                    <Button onClick={this.savePhrases} color="primary" disabled={!this.hasChanges()}>Save</Button>
                     <Button onClick={this.onClose} color="secondary">Cancel</Button>
                 </DialogActions>
             </Dialog>

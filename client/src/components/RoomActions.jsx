@@ -1,7 +1,8 @@
 import React from 'react';
-import {Card, CardActions} from "@material-ui/core";
+import {Card, CardActions, IconButton} from "@material-ui/core";
 import VoiceListener from "./VoiceListener";
 import PlaylistDialog from "./PlaylistDialog";
+import SpeechLogDialog from "./SpeechLogDialog";
 
 class RoomActions extends React.Component {
     constructor(props) {
@@ -10,13 +11,18 @@ class RoomActions extends React.Component {
     }
     getVoiceCommands() {
         const playlists = this.props.roomPlaylists || [];
-        return playlists.map(playlist => {
+        const commands = playlists.map(playlist => {
             const phrases = playlist.phrases || [];
             return phrases.map(phrase => ({
-                command: phrase,
+                command: '(*) ' + phrase + ' (*)',
                 callback: () => this.props.playPlaylist(playlist.id)
             }));
-        }).flat();
+        }).flat()
+            .concat({
+                command: '*',
+                callback: (speech) => speech && this.props.receiveSpeech(speech)
+            });
+        return commands;
     }
 
     render() {
@@ -26,6 +32,7 @@ class RoomActions extends React.Component {
                     <CardActions>
                         <PlaylistDialog playlists={this.props.playlists} saveRoomPlaylists={this.props.saveRoomPlaylists} chosenPlaylists={this.props.roomPlaylists}/>
                         <div style={{marginLeft: 'auto'}}/>
+                        <SpeechLogDialog speechLog={this.props.speechLog}/>
                         <VoiceListener commands={this.getVoiceCommands()}/>
                     </CardActions>
                 </Card>

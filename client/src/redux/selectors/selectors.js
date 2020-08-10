@@ -38,6 +38,11 @@ export const currentRoomSelector = createSelector(
     (rooms, name) => rooms && rooms.find(room => room.attendees.includes(name))
 );
 
+export const isOwnerSelector = createSelector(
+    [currentRoomSelector, profileNameSelector],
+    (room, userId) => room && room.owner === userId
+);
+
 export const inviteRoomIdSelector = createSelector(
     [roomStateSelector],
     (roomState) => !roomState.rooms.some(room => room.id === roomState.inviteRoomId) && roomState.inviteRoomId
@@ -75,3 +80,13 @@ export const spotifyCurrentPlaylistUriSelector = createSelector(
     [spotifyStateSelector],
     (spotifyState) => spotifyState.currentPlaylistUri
 );
+
+export const spotifyIsPlayingSelector = createSelector(
+    [spotifyStateSelector],
+    (spotifyState) => spotifyState.isPlaying
+);
+
+export const speechSelector = createSelector(
+    [roomStateSelector],
+    (roomState) => roomState.speech
+)

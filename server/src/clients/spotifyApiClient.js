@@ -13,8 +13,8 @@ const getAccessToken = (userId) => {
 const spotifyWithCreds = (method) =>
     (uri, paramsArg = {}, bodyArg = {}) =>
         async (userId, accessTokenArg, callback = (response) => response) => {
-    const params = Object.values(paramsArg).some(param => !!param) ? ('?' + stringify(paramsArg)) : '';
-    const body = Object.values(bodyArg).some(value => !!value) ? JSON.stringify(bodyArg) : null;
+    const params = Object.values(paramsArg).some(param => !!param || param === 0) ? ('?' + stringify(paramsArg)) : '';
+    const body = Object.values(bodyArg).some(value => !!value || value === 0) ? JSON.stringify(bodyArg) : null;
     const accessToken = !accessTokenArg ? await getAccessToken(userId) : accessTokenArg;
     const options = {
         url: `https://api.spotify.com/v1/${uri}${params}`,
@@ -62,10 +62,12 @@ spotifyApiClient.getStatus = () => getSpotify('me/player');
 spotifyApiClient.play = (spotify_uri, deviceId) => putSpotify('me/player/play', {device_id: deviceId}, {context_uri: spotify_uri});
 spotifyApiClient.playTrack = (trackUri, deviceId) => putSpotify('me/player/play', {device_id: deviceId}, {uris: [trackUri]});
 spotifyApiClient.pause = () => putSpotify('me/player/pause');
-spotifyApiClient.shuffle = () => putSpotify('me/player/shuffle', {state: true});
-spotifyApiClient.repeat = () => putSpotify('me/player/repeat', {state: 'context'});
+spotifyApiClient.shuffle = (state) => putSpotify('me/player/shuffle', {state});
+spotifyApiClient.repeat = (state) => putSpotify('me/player/repeat', {state});
 spotifyApiClient.next = () => postSpotify('me/player/next');
+spotifyApiClient.previous = () => postSpotify('me/player/previous');
 spotifyApiClient.transfer = (deviceId) => putSpotify('me/player', {}, {play: true, device_ids: [deviceId]});
+spotifyApiClient.volume = (volume_percent) => putSpotify('me/player/volume', {volume_percent});
 const playlistPagingLoop = (uri) => async (userId) => {
     let response = await getSpotify(uri)(userId);
     let playlists = [...response.items];

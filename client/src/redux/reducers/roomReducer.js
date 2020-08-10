@@ -1,6 +1,6 @@
 import roomActions from "../actions/roomActions";
 
-const roomReducer = (state = {rooms: [], roomPlaylists: []}, action) => {
+const roomReducer = (state = {rooms: [], roomPlaylists: [], speech: []}, action) => {
     let newState = {...state};
     switch (action.type) {
         case roomActions.GET_MY_ROOMS:
@@ -8,6 +8,7 @@ const roomReducer = (state = {rooms: [], roomPlaylists: []}, action) => {
         case roomActions.DEPART_ROOM:
             newState.roomPlaylists = [];
             newState.rooms = action.rooms;
+            newState.speech = [];
             break;
         case roomActions.JOINED_ROOM:
             newState.rooms = action.rooms;
@@ -38,6 +39,8 @@ const roomReducer = (state = {rooms: [], roomPlaylists: []}, action) => {
                 return playlist;
             });
             break;
+        case roomActions.RECEIVE_SPEECH:
+            newState.speech = [...newState.speech, action.speech]
         default:
     }
     return newState;

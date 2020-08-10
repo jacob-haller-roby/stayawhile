@@ -9,7 +9,8 @@ const roomActions = {
     "WRONG_PASSWORD": null,
     "SAVE_ROOM_PLAYLISTS": null,
     "GET_ROOM_PLAYLISTS": null,
-    "SET_ROOM_PLAYLIST_PHRASES": null
+    "SET_ROOM_PLAYLIST_PHRASES": null,
+    "RECEIVE_SPEECH": null
 };
 
 export default mirror(roomActions);
