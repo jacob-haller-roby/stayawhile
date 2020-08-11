@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+.MuiSlider-thumb.Mui-focusVisible, .MuiSlider-thumb:hover {
+  box-shadow: 0 0 0 8px rgba(181, 181, 181, 0.16) !important;
+}
+.MuiSlider-thumb.MuiSlider-active {
+  box-shadow: 0 0 0 14px rgba(254, 254, 254, 0.16) !important;
+}

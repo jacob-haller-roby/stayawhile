@@ -71,18 +71,15 @@ spotify.post('/next', async (req, res) => res.send(await spotifyApiClient.next()
 spotify.post('/previous', async (req, res) => res.send(await spotifyApiClient.previous()(getUserId(req))));
 spotify.post('/pauseOrPlay', async (req, res) => {
     const status = await spotifyApiClient.getStatus()(getUserId(req));
-    logger.debug(status);
     if (status.is_playing) {
-        logger.debug('pausing')
+        logger.debug('pausing');
         await spotifyApiClient.pause()(getUserId(req));
         res.send({status: 'Paused'});
     } else {
-        logger.debug('playing')
+        logger.debug('playing');
         await spotifyApiClient.play()(getUserId(req));
         res.send({status: 'Playing'});
     }
 });
-
-
 
 export default spotify;

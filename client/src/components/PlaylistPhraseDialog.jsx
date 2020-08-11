@@ -12,7 +12,6 @@ import {
     TextField
 } from "@material-ui/core";
 import {AddCircleOutline, Delete} from '@material-ui/icons'
-import {saveRoomPlaylistPhrases} from "../redux/actionCreators/roomActionCreators";
 
 class PlaylistPhraseDialog extends React.Component {
     constructor(props) {

@@ -3,9 +3,9 @@ import api from '../../util/api';
 import {
     currentRoomSelector,
     isOwnerSelector,
-    profileNameSelector,
     spotifyCurrentTrackSelector
 } from "../selectors/selectors";
+import playerManager from "../../util/spotifyPlayerManager";
 
 export const getPlaylists = () => dispatch => {
     api.get('/spotify/playlists')
@@ -22,10 +22,14 @@ export const getPlaylists = () => dispatch => {
 
 export const registerBrowser = (browserId) => dispatch => {
     api.put(`/spotify/register/${browserId}`)
-        .then(res => dispatch({
-            type: spotifyActions.REGISTER_BROWSER,
-            browserId: res
-        }));
+        .then(res =>
+            playerManager.getVolume()
+                .then(volume => dispatch({
+                    type: spotifyActions.REGISTER_BROWSER,
+                    browserId: res,
+                    volume: volume
+                }))
+        );
 };
 
 export const playPlaylist = (playlistId) => dispatch => {
@@ -55,11 +59,19 @@ export const spotifyPlayerStateChange = (spotifyState) => (dispatch, getState) =
 };
 
 export const spotifyNext = () => dispatch => {
-    api.post('/spotify/next');
+    playerManager.next();
 };
 export const spotifyPrevious = () => dispatch => {
-    api.post('/spotify/previous');
+    playerManager.prev();
 };
 export const spotifyPauseOrPlay = () => dispatch => {
-    api.post('/spotify/pauseOrPlay');
+    playerManager.togglePlay();
+};
+export const spotifySetVolume = (level) => dispatch => {
+    playerManager.setVolume(level)
+        .then(playerManager.getVolume)
+        .then(volume => dispatch({
+            type: spotifyActions.SPOTIFY_SET_VOLUME,
+            volume
+        }));
 };

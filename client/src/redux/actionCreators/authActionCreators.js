@@ -1,13 +1,19 @@
 import authActions from "../actions/authActions";
 import api from '../../util/api';
+import playerManager from "../../util/spotifyPlayerManager";
 
 export const refreshSpotifyAccessToken = () => dispatch => {
     api.get('/spotify/refresh')
-        .then(res => dispatch({
-            type: authActions.REFRESH_ACCESS_TOKEN,
-            isLoggedIn: res.isLoggedIn,
-            accessToken: res.accessToken
-        }))
+        .then(res => {
+            if (res.isLoggedIn) {
+                playerManager.initialize(res.accessToken);
+            }
+            return dispatch({
+                type: authActions.REFRESH_ACCESS_TOKEN,
+                isLoggedIn: res.isLoggedIn,
+                accessToken: res.accessToken
+            })
+        })
 };
 
 export const login = () => {

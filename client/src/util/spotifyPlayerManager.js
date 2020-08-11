@@ -1,9 +1,13 @@
 import {registerBrowser, spotifyPlayerStateChange} from "../redux/actionCreators/spotifyActionCreators";
 import store from "../redux/store";
 
-const initialize = (accessToken) => {
+const playerManager = {};
+
+playerManager.initialize = (accessToken) => {
+    if (playerManager.player) return;
+
     if (!window.Spotify) {
-        window.setTimeout(() => initialize(accessToken), 1000);
+        window.setTimeout(() => playerManager.initialize(accessToken), 1000);
     }
 
     const player = new window.Spotify.Player({
@@ -26,7 +30,7 @@ const initialize = (accessToken) => {
 // Ready
     player.addListener('ready', ({ device_id }) => {
         console.log('Ready with Device ID', device_id);
-        store.dispatch(registerBrowser(device_id))
+        store.dispatch(registerBrowser(device_id));
     });
 
 // Not Ready
@@ -36,6 +40,17 @@ const initialize = (accessToken) => {
 
 // Connect to the player!
     player.connect();
+    playerManager.player = player;
 };
 
-export default initialize;
+playerManager.isInitialized = () => {
+    return !!playerManager.player;
+};
+
+playerManager.getVolume = () => playerManager.isInitialized() && playerManager.player.getVolume();
+playerManager.setVolume = (level) => playerManager.isInitialized() && playerManager.player.setVolume(level);
+playerManager.togglePlay = () => playerManager.isInitialized() && playerManager.player.togglePlay();
+playerManager.next = () => playerManager.isInitialized() && playerManager.player.nextTrack();
+playerManager.prev = () => playerManager.isInitialized() && playerManager.player.previousTrack();
+
+export default playerManager;

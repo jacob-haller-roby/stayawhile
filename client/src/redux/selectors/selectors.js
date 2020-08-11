@@ -89,4 +89,9 @@ export const spotifyIsPlayingSelector = createSelector(
 export const speechSelector = createSelector(
     [roomStateSelector],
     (roomState) => roomState.speech
-)
+);
+
+export const spotifyVolumeSelector = createSelector(
+    [spotifyStateSelector],
+    (spotifyState) => spotifyState.volume
+);
