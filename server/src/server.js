@@ -6,6 +6,7 @@ import logger from "./util/logger";
 import room from "./controllers/room";
 import Authenticated from "./middleware/Authenticated";
 import cookieParser from 'cookie-parser';
+import redisSubscriberClient from "./clients/redisSubscriber";
 
 logger.debug(process.env);
 

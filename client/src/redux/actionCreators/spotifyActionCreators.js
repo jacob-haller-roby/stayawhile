@@ -1,10 +1,6 @@
 import spotifyActions from "../actions/spotifyActions";
 import api from '../../util/api';
-import {
-    currentRoomSelector,
-    isOwnerSelector,
-    spotifyCurrentTrackSelector
-} from "../selectors/selectors";
+import {currentRoomSelector, isOwnerSelector, spotifyCurrentTrackSelector} from "../selectors/selectors";
 import playerManager from "../../util/spotifyPlayerManager";
 
 export const getPlaylists = () => dispatch => {
@@ -22,14 +18,14 @@ export const getPlaylists = () => dispatch => {
 
 export const registerBrowser = (browserId) => dispatch => {
     api.put(`/spotify/register/${browserId}`)
-        .then(res =>
+        .then(res => {
             playerManager.getVolume()
                 .then(volume => dispatch({
                     type: spotifyActions.REGISTER_BROWSER,
                     browserId: res,
                     volume: volume
                 }))
-        );
+        });
 };
 
 export const playPlaylist = (playlistId) => dispatch => {

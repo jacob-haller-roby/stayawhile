@@ -11,6 +11,7 @@ redisSubscriberClient.psubscribe(subscriberPattern);
 
 redisSubscriberClient.on('pmessage', async (pattern, channel, message) =>{
     const roomId = channel.split(':')[2];
+    logger.debug(pattern, channel, message);
     if (message === 'hset') {
         logger.debug('Room ' + roomId + ' has changed songs');
         const room = await redisClient.getRoom(roomId);
@@ -20,7 +21,7 @@ redisSubscriberClient.on('pmessage', async (pattern, channel, message) =>{
             const accessToken = await redisClient.getAccessToken(userId);
             const deviceId = await redisClient.getDeviceId(userId);
             logger.debug('changing song for user ' + userId + ' to ' + track.uri);
-            return spotifyApiClient.playTrack(track.uri, deviceId, accessToken)()
+            return spotifyApiClient.playTrack(track.uri, deviceId)(null, accessToken)
         }));
     }
 });

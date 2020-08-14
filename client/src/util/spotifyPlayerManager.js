@@ -1,29 +1,31 @@
 import {registerBrowser, spotifyPlayerStateChange} from "../redux/actionCreators/spotifyActionCreators";
 import store from "../redux/store";
+import {spotifyAccessTokenSelector} from "../redux/selectors/selectors";
 
 const playerManager = {};
 
-playerManager.initialize = (accessToken) => {
+playerManager.initialize = () => {
     if (playerManager.player) return;
 
-    if (!window.Spotify) {
-        window.setTimeout(() => playerManager.initialize(accessToken), 1000);
+    if (!window.Spotify || !spotifyAccessTokenSelector(store.getState())) {
+        return window.setTimeout(() => playerManager.initialize(), 1000);
     }
 
     const player = new window.Spotify.Player({
         name: 'Stay A While: Spotify Web Player',
-        getOAuthToken: cb => { cb(accessToken); }
+        getOAuthToken: cb => {
+            cb(spotifyAccessTokenSelector(store.getState()));
+        }
     });
 
 // Error handling
     player.addListener('initialization_error', ({ message }) => { console.error(message); });
-    player.addListener('authentication_error', ({ message }) => { console.error(message); console.error('accessToken is:' + accessToken) });
+    player.addListener('authentication_error', ({ message }) => { console.error(message); });
     player.addListener('account_error', ({ message }) => { console.error(message); });
     player.addListener('playback_error', ({ message }) => { console.error(message); });
 
 // Playback status updates
     player.addListener('player_state_changed', state => {
-        console.log(state);
         store.dispatch(spotifyPlayerStateChange(state))
     });
 

@@ -6,7 +6,7 @@ export const refreshSpotifyAccessToken = () => dispatch => {
     api.get('/spotify/refresh')
         .then(res => {
             if (res.isLoggedIn) {
-                playerManager.initialize(res.accessToken);
+                playerManager.initialize();
             }
             return dispatch({
                 type: authActions.REFRESH_ACCESS_TOKEN,

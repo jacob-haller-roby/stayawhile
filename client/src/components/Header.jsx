@@ -80,7 +80,6 @@ class Header extends React.Component {
 
     handleToggleProfileMenu(event) {
         let {currentTarget} = event;
-        console.log(currentTarget);
         this.setState(prevState => {
             return {
                 profileMenuOpen: !prevState.profileMenuOpen,

@@ -19,7 +19,11 @@ redisClient.smembersa = async (...args) => {
 };
 
 //Access Tokens
-redisClient.setAccessToken = (userId, accessToken) => redisClient.set(redisKeys.accessTokenKey(userId), accessToken);
+redisClient.setAccessToken = (userId, accessToken, expire) => {
+    redisClient.set(redisKeys.accessTokenKey(userId), accessToken);
+    redisClient.expire(redisKeys.accessTokenKey(userId), expire);
+    return redisClient.getAccessToken(redisKeys.accessTokenKey(userId));
+}
 redisClient.getAccessToken = (userId) => redisClient.get(redisKeys.accessTokenKey(userId));
 redisClient.deleteAccessToken = (userId) => redisClient.del(redisKeys.accessTokenKey(userId));
 

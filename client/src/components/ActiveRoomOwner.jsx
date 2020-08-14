@@ -46,7 +46,7 @@ class ActiveRoomOwner extends React.Component {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item md={6} xs={12}>
                         <RoomActions playlists={this.props.playlists}
                                      room={this.props.room}
                                      saveRoomPlaylists={this.props.saveRoomPlaylists}

@@ -51,7 +51,6 @@ export const processRoomInvite = () => dispatch => {
 }
 
 export const clearRoomInviteCookie = () => dispatch => {
-    console.log('clearing old invite cookie');
     document.cookie = 'inviteRoomId="";expires='+(new Date()).toUTCString()+';path=/;';
 }
 

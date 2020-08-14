@@ -2,6 +2,7 @@ import redisClient from './redisClient';
 import {stringify} from 'query-string';
 import request from 'request';
 import logger from "../util/logger";
+import spotifyAuthorizationClient from "./spotifyAuthorizationClient";
 
 const getAccessToken = (userId) => {
     if (!userId) {

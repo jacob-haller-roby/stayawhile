@@ -36,11 +36,11 @@ class LoginGate extends React.Component {
 
     componentDidMount() {
         this.props.refreshSpotifyAccessToken();
+        window.setInterval(this.props.refreshSpotifyAccessToken,  1000 * 60 * 55); //1000 * 60 * 40
         this.props.processRoomInvite();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log(prevProps, this.props);
         if(prevProps.inviteRoomId && !this.props.inviteRoomId) {
             this.props.clearRoomInviteCookie();
         }

@@ -66,21 +66,18 @@ spotifyAuthorizationClient.loginCallback = (req, res) => {
         };
 
         request.post(authOptions, function(error, response, body) {
-            let accessToken, refreshToken;
+            let accessToken, refreshToken, expireIn;
             if (!error && response.statusCode === 200) {
 
                 accessToken = body.access_token;
                 refreshToken = body.refresh_token;
-
-                //res.cookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN, refresh_token, {httpOnly: true, sameSite: 'strict', secure: true});
-                //redisClient.setAccessToken(refresh_token, access_token);
+                expireIn = body.expires_in;
             } else {
-                console.error('ERROR: ' + error);
                 return errorResponseFactory.create401(req, res, "Invalid login");
             }
             spotifyApiClient.me()(null, accessToken)
                 .then(async profile => {
-                    await redisClient.setAccessToken(profile.id, accessToken);
+                    await redisClient.setAccessToken(profile.id, accessToken, expireIn);
                     await redisClient.setRefreshToken(profile.id, refreshToken);
                     res.cookie(CONSTANTS.SPOTIFY_USER_ID, profile.id, {httpOnly: true, sameSite: 'strict', secure: true});
                     res.cookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN, refreshToken, {httpOnly: true, sameSite: 'strict', secure: true});
@@ -94,7 +91,7 @@ spotifyAuthorizationClient.loginCallback = (req, res) => {
 spotifyAuthorizationClient.refresh = async (req, res) => {
     let userId = req.cookies[CONSTANTS.SPOTIFY_USER_ID];
     if(!userId) {
-        console.log('no userId in cookies, user must log in');
+        logger.log('no userId in cookies, user must log in');
         return res.send({isLoggedIn: false});
     }
 
@@ -121,7 +118,7 @@ spotifyAuthorizationClient.refresh = async (req, res) => {
         return spotifyApiClient.me()(null, accessToken)
             .then(profile => {
                 logger.debug('Setting new Access Token: ' + accessToken);
-                redisClient.setAccessToken(profile.id, accessToken);
+                redisClient.setAccessToken(profile.id, accessToken, jsonBody.expires_in);
                 redisClient.setRefreshToken(profile.id, refreshToken);
                 res.send({isLoggedIn: true, profile, accessToken})
             });
@@ -131,7 +128,7 @@ spotifyAuthorizationClient.refresh = async (req, res) => {
 spotifyAuthorizationClient.logout = (req, res) => {
     let userId = req.cookies[CONSTANTS.SPOTIFY_USER_ID];
     if (!userId) {
-        console.log('already logged out');
+        logger.log('already logged out');
         return res.send({isLoggedIn: false});
     }
 
