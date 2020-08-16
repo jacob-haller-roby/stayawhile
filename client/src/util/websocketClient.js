@@ -17,7 +17,6 @@ websocketClient.init = (userId, dispatch, getState) => {
     };
     websocketClient.socket.addEventListener('message', event => {
         const message = JSON.parse(event.data);
-        console.log(message);
         switch (message.type) {
             case 'ROOM_ATTENDEES':
                 websocketClient.dispatch(receiveRoomAttendees(message.message.roomId, message.message.attendees));

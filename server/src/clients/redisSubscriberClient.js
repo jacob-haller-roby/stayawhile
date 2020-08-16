@@ -39,7 +39,7 @@ const redisSubscriberClient = {
 redisSubscriberClient.init = (redisClient, websocketClient, spotifyApiClient) => {
     redisSubscriberClient.websocketClient = websocketClient;
     redisSubscriberClient.redisClient = redisClient;
-    redisClient.spotifyApiClient = spotifyApiClient;
+    redisSubscriberClient.spotifyApiClient = spotifyApiClient;
     redisSubscriberClient.subscriptions.forEach(options => {
         const {pattern, callback} = options;
         logger.debug(`Registering redis subscription.  Pattern: ${pattern}, Callback Exists: ${typeof callback === 'function'}`);
