@@ -1,26 +1,41 @@
 import React from 'react';
-import {Avatar, List, ListItem, ListItemAvatar, ListItemText, ListSubheader, Paper} from "@material-ui/core";
+import {
+    Accordion,
+    AccordionSummary,
+    AccordionDetails,
+    Avatar,
+    List,
+    ListItem,
+    ListItemAvatar,
+    ListItemText,
+    Paper,
+    Typography
+} from "@material-ui/core";
+import {ExpandMore} from "@material-ui/icons";
 
 class AttendeesList extends React.Component {
     render() {
         return (
             <Paper style={{flexShrink: 1, display: 'flex'}}>
-                <List
-                    subheader={
-                        <ListSubheader component="div" id="attendees-list-header">
+                <Accordion>
+                    <AccordionSummary expandIcon={<ExpandMore/>}>
+                        <Typography>
                             Current Room Attendees
-                        </ListSubheader>
-                    }
-                >
-                    {this.props.attendees.map(attendee => (
-                        <ListItem key={attendee.id}>
-                            <ListItemAvatar>
-                                <Avatar src={attendee.imageUrl}/>
-                            </ListItemAvatar>
-                            <ListItemText primary={attendee.display_name}/>
-                        </ListItem>
-                    ))}
-                </List>
+                        </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                        <List>
+                            {this.props.attendees.map(attendee => (
+                                <ListItem key={attendee.id}>
+                                    <ListItemAvatar>
+                                        <Avatar src={attendee.imageUrl}/>
+                                    </ListItemAvatar>
+                                    <ListItemText primary={attendee.display_name}/>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </AccordionDetails>
+                </Accordion>
             </Paper>
         )
     }
