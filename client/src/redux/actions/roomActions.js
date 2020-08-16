@@ -10,7 +10,8 @@ const roomActions = {
     "SAVE_ROOM_PLAYLISTS": null,
     "GET_ROOM_PLAYLISTS": null,
     "SET_ROOM_PLAYLIST_PHRASES": null,
-    "RECEIVE_SPEECH": null
+    "RECEIVE_SPEECH": null,
+    "RECEIVE_ROOM_ATTENDEES": null
 };
 
 export default mirror(roomActions);

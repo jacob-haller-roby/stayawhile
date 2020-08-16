@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {
     currentRoomSelector,
     playlistSelector,
-    profileNameSelector,
+    profileNameSelector, roomAttendeesSelector,
     roomPlaylistsSelector,
     roomsSelector, speechSelector, spotifyCurrentPlaylistUriSelector, spotifyCurrentTrackSelector
 } from "../redux/selectors/selectors";
@@ -36,9 +36,10 @@ class Router extends React.Component {
                                     saveRoomPlaylistPhrases={this.props.saveRoomPlaylistPhrases}
                                     receiveSpeech={this.props.receiveSpeech}
                                     speechLog={this.props.speechLog}
+                                    roomAttendees={this.props.roomAttendees}
             />;
         } else {
-            return <ActiveRoomAttendee room={this.props.currentRoom}/>;
+            return <ActiveRoomAttendee room={this.props.currentRoom} roomAttendees={this.props.roomAttendees}/>;
         }
     }
 };
@@ -52,7 +53,8 @@ export default connect(
         roomPlaylists: roomPlaylistsSelector(state),
         currentTrack: spotifyCurrentTrackSelector(state),
         currentPlaylistUri: spotifyCurrentPlaylistUriSelector(state),
-        speechLog: speechSelector(state)
+        speechLog: speechSelector(state),
+        roomAttendees: roomAttendeesSelector(state)
     }),
     dispatch => ({
         getPlaylists: () => dispatch(getPlaylists()),

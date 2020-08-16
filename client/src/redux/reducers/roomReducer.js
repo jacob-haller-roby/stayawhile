@@ -41,6 +41,10 @@ const roomReducer = (state = {rooms: [], roomPlaylists: [], speech: []}, action)
             break;
         case roomActions.RECEIVE_SPEECH:
             newState.speech = [...newState.speech, action.speech]
+            break;
+        case roomActions.RECEIVE_ROOM_ATTENDEES:
+            newState.rooms = state.rooms.map(room => room.id === action.roomId ? ({...room, attendees: action.attendees}) : room);
+            break;
         default:
     }
     return newState;

@@ -110,3 +110,9 @@ export const receiveSpeech = (speech) => ({
     type: roomActions.RECEIVE_SPEECH,
     speech
 });
+
+export const receiveRoomAttendees = (roomId, attendees) => ({
+    type: roomActions.RECEIVE_ROOM_ATTENDEES,
+    attendees,
+    roomId
+});

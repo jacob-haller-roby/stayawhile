@@ -1,5 +1,6 @@
 import React from "react";
 import {Paper} from "@material-ui/core";
+import AttendeesList from "./AttendeesList";
 
 
 class ActiveRoomAttendee extends React.Component {
@@ -8,10 +9,12 @@ class ActiveRoomAttendee extends React.Component {
         return (
             <div>
                 <Paper>{this.props.room.title}</Paper>
-                Stay a while...
+                <div style={{display: 'flex', justifyContent: 'center'}}>
+                    <AttendeesList attendees={this.props.roomAttendees}/>
+                </div>
             </div>
         )
     }
-};
+}
 
 export default ActiveRoomAttendee;

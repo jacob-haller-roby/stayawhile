@@ -1,22 +1,26 @@
-import redisClient from './redisClient';
 import {stringify} from 'query-string';
 import request from 'request';
 import logger from "../util/logger";
-import spotifyAuthorizationClient from "./spotifyAuthorizationClient";
 
-const getAccessToken = (userId) => {
+
+const spotifyApiClient = {};
+spotifyApiClient.init = (redisClient) => {
+    spotifyApiClient.redisClient = redisClient;
+};
+
+spotifyApiClient.getAccessToken = (userId) => {
     if (!userId) {
         logger.error('No user Id provided');
     }
-    return redisClient.getAccessToken(userId);
+    return spotifyApiClient.redisClient.getAccessToken(userId);
 }
 
-const spotifyWithCreds = (method) =>
+spotifyApiClient.spotifyWithCreds = (method) =>
     (uri, paramsArg = {}, bodyArg = {}) =>
         async (userId, accessTokenArg, callback = (response) => response) => {
     const params = Object.values(paramsArg).some(param => !!param || param === 0) ? ('?' + stringify(paramsArg)) : '';
     const body = Object.values(bodyArg).some(value => !!value || value === 0) ? JSON.stringify(bodyArg) : null;
-    const accessToken = !accessTokenArg ? await getAccessToken(userId) : accessTokenArg;
+    const accessToken = !accessTokenArg ? await spotifyApiClient.getAccessToken(userId) : accessTokenArg;
     const options = {
         url: `https://api.spotify.com/v1/${uri}${params}`,
         headers: {
@@ -52,29 +56,29 @@ const spotifyWithCreds = (method) =>
         })
 }
 
-const getSpotify = spotifyWithCreds('GET');
-const postSpotify = spotifyWithCreds('POST');
-const putSpotify = spotifyWithCreds('PUT');
+spotifyApiClient.getSpotify = spotifyApiClient.spotifyWithCreds('GET');
+spotifyApiClient.postSpotify = spotifyApiClient.spotifyWithCreds('POST');
+spotifyApiClient.putSpotify = spotifyApiClient.spotifyWithCreds('PUT');
 
-const spotifyApiClient = {};
-spotifyApiClient.me = () => getSpotify('me');
-spotifyApiClient.getDevices = () => getSpotify('me/player/devices');
-spotifyApiClient.getStatus = () => getSpotify('me/player');
-spotifyApiClient.play = (spotify_uri, deviceId) => putSpotify('me/player/play', {device_id: deviceId}, {context_uri: spotify_uri});
-spotifyApiClient.playTrack = (trackUri, deviceId) => putSpotify('me/player/play', {device_id: deviceId}, {uris: [trackUri]});
-spotifyApiClient.pause = () => putSpotify('me/player/pause');
-spotifyApiClient.shuffle = (state) => putSpotify('me/player/shuffle', {state});
-spotifyApiClient.repeat = (state) => putSpotify('me/player/repeat', {state});
-spotifyApiClient.next = () => postSpotify('me/player/next');
-spotifyApiClient.previous = () => postSpotify('me/player/previous');
-spotifyApiClient.transfer = (deviceId) => putSpotify('me/player', {}, {play: true, device_ids: [deviceId]});
-spotifyApiClient.volume = (volume_percent) => putSpotify('me/player/volume', {volume_percent});
+
+spotifyApiClient.me = () => spotifyApiClient.getSpotify('me');
+spotifyApiClient.getDevices = () => spotifyApiClient.getSpotify('me/player/devices');
+spotifyApiClient.getStatus = () => spotifyApiClient.getSpotify('me/player');
+spotifyApiClient.play = (spotify_uri, deviceId) => spotifyApiClient.putSpotify('me/player/play', {device_id: deviceId}, {context_uri: spotify_uri});
+spotifyApiClient.playTrack = (trackUri, deviceId) => spotifyApiClient.putSpotify('me/player/play', {device_id: deviceId}, {uris: [trackUri]});
+spotifyApiClient.pause = () => spotifyApiClient.putSpotify('me/player/pause');
+spotifyApiClient.shuffle = (state) => spotifyApiClient.putSpotify('me/player/shuffle', {state});
+spotifyApiClient.repeat = (state) => spotifyApiClient.putSpotify('me/player/repeat', {state});
+spotifyApiClient.next = () => spotifyApiClient.postSpotify('me/player/next');
+spotifyApiClient.previous = () => spotifyApiClient.postSpotify('me/player/previous');
+spotifyApiClient.transfer = (deviceId) => spotifyApiClient.putSpotify('me/player', {}, {play: true, device_ids: [deviceId]});
+spotifyApiClient.volume = (volume_percent) => spotifyApiClient.putSpotify('me/player/volume', {volume_percent});
 const playlistPagingLoop = (uri) => async (userId) => {
-    let response = await getSpotify(uri)(userId);
+    let response = await spotifyApiClient.getSpotify(uri)(userId);
     let playlists = [...response.items];
     while (response.next) {
         let next = response.next.split('/v1/')[1].replace('limit=20','');
-        response = await getSpotify(next)(userId);
+        response = await spotifyApiClient.getSpotify(next)(userId);
         if(response) {
             playlists.push(...response.items);
         }

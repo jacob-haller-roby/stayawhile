@@ -8,7 +8,6 @@ const redisClient = redis.createClient({
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT
 });
-
 redisClient.convertJsonToHashArray = (json) => {
     return Object.entries(json).flat();
 };
@@ -35,12 +34,24 @@ redisClient.deleteRefreshToken = (userId) => redisClient.del(redisKeys.refreshTo
 //Rooms
 redisClient.getRoom = async (roomId) => ({
     ...await redisClient.hgetall(redisKeys.roomId(roomId)),
-    attendees: await redisClient.smembersa(redisKeys.roomAttendees(roomId))
+    participants: await redisClient.getRoomParticipants(roomId),
+    attendees: await redisClient.getRoomAttendeeIds(roomId)
 });
+redisClient.getRoomAttendeeIds = async (roomId) => {
+    return await redisClient.smembersa(redisKeys.roomAttendees(roomId));
+}
+redisClient.getRoomAttendees = async (roomId) => {
+    return await Promise.all((redisClient.getRoomAttendeeIds(roomId)).map(async attendeeId => await redisClient.getUserDetails(attendeeId)));
+};
+redisClient.getRoomParticipants = async (roomId) => {
+    return await Promise.all((await redisClient.smembersa(redisKeys.roomParticipants(roomId))).map(async attendeeId => await redisClient.getUserDetails(attendeeId)));
+};
 redisClient.joinRoom = async (roomId, userId) => {
+    await redisClient.sadd(redisKeys.roomParticipants(roomId), userId);
     await redisClient.sadd(redisKeys.userRooms(userId), roomId);
 };
 redisClient.leaveRoom = async (roomId, userId) => {
+    await redisClient.srem(redisKeys.roomParticipants(roomId), userId);
     await redisClient.srem(redisKeys.userRooms(userId), roomId);
 };
 redisClient.attendRoom = async (roomId, userId) => {
@@ -137,7 +148,14 @@ redisClient.setPlaylistPhrase = async (roomId, playlistId, phraseArray) => {
 };
 redisClient.getPlaylistPhrases = async (roomId, playlistId) => {
     return await redisClient.smembersa(redisKeys.roomPlaylistPhrases(roomId, playlistId));
-}
+};
+redisClient.saveUserDetails = async (userId, details) => {
+    redisClient.hmset(redisKeys.userDetails(userId), ...await redisClient.convertJsonToHashArray(details));
+    return await redisClient.getUserDetails(userId);
+};
+redisClient.getUserDetails = async (userId) => {
+    return await redisClient.hgetall(redisKeys.userDetails(userId));
+};
 
 
 export default redisClient;

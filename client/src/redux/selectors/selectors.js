@@ -95,3 +95,11 @@ export const spotifyVolumeSelector = createSelector(
     [spotifyStateSelector],
     (spotifyState) => spotifyState.volume
 );
+
+export const roomAttendeesSelector = createSelector(
+    [currentRoomSelector],
+    (currentRoom) => {
+        if (!currentRoom) return [];
+        return currentRoom.participants.filter(participant => currentRoom.attendees.some(attendeeId => attendeeId === participant.id));
+    }
+);

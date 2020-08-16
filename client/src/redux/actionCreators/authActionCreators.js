@@ -1,12 +1,14 @@
 import authActions from "../actions/authActions";
 import api from '../../util/api';
 import playerManager from "../../util/spotifyPlayerManager";
+import websocketClient from "../../util/websocketClient";
 
-export const refreshSpotifyAccessToken = () => dispatch => {
+export const refreshSpotifyAccessToken = () => (dispatch, getState) => {
     api.get('/spotify/refresh')
         .then(res => {
             if (res.isLoggedIn) {
                 playerManager.initialize();
+                websocketClient.init(res.profile.id, dispatch, getState);
             }
             return dispatch({
                 type: authActions.REFRESH_ACCESS_TOKEN,

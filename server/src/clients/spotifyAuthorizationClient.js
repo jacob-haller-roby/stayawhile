@@ -1,8 +1,6 @@
 import queryString from 'query-string';
-import redisClient from "./redisClient";
 import request from 'request';
 import CONSTANTS from '../constants';
-import spotifyApiClient from "./spotifyApiClient";
 import errorResponseFactory from "../util/errorResponseFactory";
 import logger from "../util/logger";
 
@@ -12,6 +10,10 @@ const REDIRECT_URI = process.env.HOST + "/spotify/callback";
 const STATE_KEY = 'state_key';
 
 const spotifyAuthorizationClient = {};
+spotifyAuthorizationClient.init = (redisClient, spotifyApiClient) => {
+    spotifyAuthorizationClient.redisClient = redisClient;
+    spotifyAuthorizationClient.spotifyApiClient = spotifyApiClient;
+};
 
 const generateRandomString = function(length) {
     let text = '';
@@ -75,10 +77,16 @@ spotifyAuthorizationClient.loginCallback = (req, res) => {
             } else {
                 return errorResponseFactory.create401(req, res, "Invalid login");
             }
-            spotifyApiClient.me()(null, accessToken)
+            spotifyAuthorizationClient.spotifyApiClient.me()(null, accessToken)
                 .then(async profile => {
-                    await redisClient.setAccessToken(profile.id, accessToken, expireIn);
-                    await redisClient.setRefreshToken(profile.id, refreshToken);
+                    const userDetails = {
+                        display_name: profile.display_name,
+                        imageUrl: profile.images.length ? profile.images[0].url : '',
+                        id: profile.id
+                    };
+                    await spotifyAuthorizationClient.redisClient.saveUserDetails(profile.id, userDetails);
+                    await spotifyAuthorizationClient.redisClient.setAccessToken(profile.id, accessToken, expireIn);
+                    await spotifyAuthorizationClient.redisClient.setRefreshToken(profile.id, refreshToken);
                     res.cookie(CONSTANTS.SPOTIFY_USER_ID, profile.id, {httpOnly: true, sameSite: 'strict', secure: true});
                     res.cookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN, refreshToken, {httpOnly: true, sameSite: 'strict', secure: true});
                     res.redirect('/');
@@ -95,7 +103,7 @@ spotifyAuthorizationClient.refresh = async (req, res) => {
         return res.send({isLoggedIn: false});
     }
 
-    const refreshToken = req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN] || await redisClient.getRefreshToken(userId);
+    const refreshToken = req.cookies[CONSTANTS.SPOTIFY_REFRESH_TOKEN] || await spotifyAuthorizationClient.redisClient.getRefreshToken(userId);
     const options = {
         url: 'https://accounts.spotify.com/api/token',
         form: {
@@ -115,11 +123,17 @@ spotifyAuthorizationClient.refresh = async (req, res) => {
         }
         const accessToken = jsonBody.access_token;
 
-        return spotifyApiClient.me()(null, accessToken)
+        return spotifyAuthorizationClient.spotifyApiClient.me()(null, accessToken)
             .then(profile => {
-                logger.debug('Setting new Access Token: ' + accessToken);
-                redisClient.setAccessToken(profile.id, accessToken, jsonBody.expires_in);
-                redisClient.setRefreshToken(profile.id, refreshToken);
+                logger.debug(`Setting new Access Token for ${profile.id}: ${accessToken}`);
+                const userDetails = {
+                    display_name: profile.display_name,
+                    imageUrl: profile.images.length ? profile.images[0].url : '',
+                    id: profile.id
+                };
+                spotifyAuthorizationClient.redisClient.saveUserDetails(profile.id, userDetails);
+                spotifyAuthorizationClient.redisClient.setAccessToken(profile.id, accessToken, jsonBody.expires_in);
+                spotifyAuthorizationClient.redisClient.setRefreshToken(profile.id, refreshToken);
                 res.send({isLoggedIn: true, profile, accessToken})
             });
     });
@@ -132,8 +146,8 @@ spotifyAuthorizationClient.logout = (req, res) => {
         return res.send({isLoggedIn: false});
     }
 
-    redisClient.deleteAccessToken(userId);
-    redisClient.deleteRefreshToken(userId);
+    spotifyAuthorizationClient.redisClient.deleteAccessToken(userId);
+    spotifyAuthorizationClient.redisClient.deleteRefreshToken(userId);
     res.clearCookie(CONSTANTS.SPOTIFY_USER_ID);
     res.clearCookie(CONSTANTS.SPOTIFY_REFRESH_TOKEN);
     return res.send({isLoggedIn: false});

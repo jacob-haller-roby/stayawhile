@@ -15,7 +15,8 @@
     "query-string": "^6.13.1",
     "redis": "^3.0.2",
     "request": "^2.88.2",
-    "source-map-support": "^0.5.19"
+    "source-map-support": "^0.5.19",
+    "ws": "^7.3.1"
   },
   "scripts": {
     "start": "node dist/server.js --max_old_space_size=4096",

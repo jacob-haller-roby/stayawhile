@@ -6,15 +6,18 @@ import logger from "./util/logger";
 import room from "./controllers/room";
 import Authenticated from "./middleware/Authenticated";
 import cookieParser from 'cookie-parser';
-import redisSubscriberClient from "./clients/redisSubscriber";
+import webSocketClient from "./clients/websocketClient";
+import redisSubscriberClient from "./clients/redisSubscriberClient";
+import redisClient from "./clients/redisClient";
+import spotifyApiClient from "./clients/spotifyApiClient";
+import spotifyAuthorizationClient from "./clients/spotifyAuthorizationClient";
 
 logger.debug(process.env);
-
 const app = express();
 
 app.use((req, res, next) => {
-   logger.log((new Date()).toISOString(), req.path);
-   next();
+    logger.log((new Date()).toISOString(), req.path);
+    next();
 });
 app.use(express.static(path.join(__dirname, 'build')));
 
@@ -33,4 +36,13 @@ app.get('/', (req, res) => {
 });
 
 
-app.listen(process.env.SERVER_PORT, '0.0.0.0');
+const server = app.listen(process.env.SERVER_PORT, '0.0.0.0');
+
+logger.debug('Init websocketClient');
+webSocketClient.init(server);
+logger.debug('Init spotifyApiClient');
+spotifyApiClient.init(redisClient);
+logger.debug('Init redisSubscriberClient');
+redisSubscriberClient.init(redisClient, webSocketClient, spotifyApiClient);
+logger.debug('Init spotifyAuthorizationClient');
+spotifyAuthorizationClient.init(redisClient, spotifyApiClient);
