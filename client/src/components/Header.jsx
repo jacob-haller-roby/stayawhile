@@ -279,7 +279,7 @@ class Header extends React.Component {
                         {this.renderRoomList()}
                     </div>
                 </Drawer>
-                <div style={{flexGrow: 1}}>
+                <div>
                     <AppBar variant="fixed">
                         <Toolbar>
                             <div style={{flexShrink: 1, width: '50%', display: 'flex', justifyContent: 'flex-start'}}>

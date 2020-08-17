@@ -39,7 +39,7 @@ class Router extends React.Component {
                                     roomAttendees={this.props.roomAttendees}
             />;
         } else {
-            return <ActiveRoomAttendee room={this.props.currentRoom} roomAttendees={this.props.roomAttendees}/>;
+            return <ActiveRoomAttendee room={this.props.currentRoom} roomAttendees={this.props.roomAttendees} currentTrack={this.props.currentTrack}/>;
         }
     }
 };

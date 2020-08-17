@@ -77,10 +77,10 @@ class LoginGate extends React.Component {
     render() {
         if (this.props.isLoggedIn) {
             return (
-                <div>
+                <React.Fragment>
                     {this.renderInvitationDialog()}
                     {this.props.children}
-                </div>
+                </React.Fragment>
             )
         } else if (!this.props.verifiedLogin) {
             return <CircularProgress/>

@@ -11,10 +11,10 @@ class App extends React.Component {
         return (
             <div className="App">
                 <header className="App-header">
-                    <div style={{flexGrow: 1, width: '90%'}}>
+                    <div style={{flexGrow: 1, width: '90%', display: 'flex', flexDirection: 'column'}}>
                         <LoginGate>
                             <Header/>
-                            <div style={{marginTop: '80px', marginBottom: '120px'}}>
+                            <div style={{marginTop: '80px', marginBottom: '120px', flex: 1, display: 'flex'}}>
                                 <Router/>
                             </div>
                         </LoginGate>
