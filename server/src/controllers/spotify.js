@@ -33,8 +33,6 @@ spotify.get('/me', async (req, res) => res.send(await spotifyApiClient.me()(getU
 spotify.get('/playlists', async (req, res) => res.send(await spotifyApiClient.playlists()(getUserId(req))));
 spotify.get('/playlists/suggested', async (req, res) => res.send(await spotifyApiClient.suggestedPlaylists()(getUserId(req))));
 spotify.put('/register/:deviceId', async (req, res) => {
-    // Use John Cage 4:33 to quietly initialize the web player.  :)
-    await spotifyApiClient.playTrack('spotify:track:2bNCdW4rLnCTzgqUXTTDO1', req.params.deviceId)(getUserId(req));
     res.send({deviceId: await redisClient.saveDeviceId(getUserId(req), req.params.deviceId)})
 });
 spotify.put('/play/:playlistId', async (req, res) => {
@@ -43,6 +41,11 @@ spotify.put('/play/:playlistId', async (req, res) => {
     const playlist = await redisClient.getPlaylist(req.params.playlistId);
 
     let status = await spotifyApiClient.getStatus()(userId);
+    if (!Object.values(status).length) {
+        // Use John Cage 4:33 to quietly initialize the web player.  :)
+        logger.debug(`Silent Initializer for user ${userId}, device ${deviceId}`);
+        await spotifyApiClient.playTrack('spotify:track:2bNCdW4rLnCTzgqUXTTDO1', deviceId)(userId);
+    }
 
     const shuffle = true;
     if (status.shuffle_state !== shuffle) {
