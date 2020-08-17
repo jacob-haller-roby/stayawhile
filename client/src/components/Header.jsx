@@ -59,6 +59,7 @@ class Header extends React.Component {
         this.closeCreateRoomDialog = this.closeCreateRoomDialog.bind(this);
         this.handleFormInput = this.handleFormInput.bind(this);
         this.createNewRoom = this.createNewRoom.bind(this);
+        this.goToPatreon = this.goToPatreon.bind(this);
     }
 
     componentDidMount() {
@@ -147,6 +148,10 @@ class Header extends React.Component {
             this.closeCreateRoomDialog();
         }
 
+    }
+
+    goToPatreon() {
+        window.open('https://www.patreon.com/jhr', '_blank');
     }
 
     renderAvatar() {
@@ -277,35 +282,40 @@ class Header extends React.Component {
                 <div style={{flexGrow: 1}}>
                     <AppBar variant="fixed">
                         <Toolbar>
-                            <React.Fragment>
-                                <IconButton onClick={this.handleToggleDrawer} edge="start">
-                                    <ListIcon/>
-                                </IconButton>
-                            </React.Fragment>
-                            <Typography style={{flexGrow: 1}}>Stay a while....</Typography>
-                            <React.Fragment>
-                                <IconButton onClick={this.handleToggleProfileMenu} edge="end">
-                                    {this.renderAvatar()}
-                                </IconButton>
-                                <Menu
-                                    id="profile-menu"
-                                    anchorOrigin={{
-                                        vertical: 'bottom',
-                                        horizontal: 'center',
-                                    }}
-                                    anchorEl={this.state.profileAnchorEl}
-                                    open={Boolean(this.state.profileMenuOpen)}
-                                    onClose={this.closeProfileMenu}
-                                >
-                                    <MenuItem onClick={this.login}>Change Account</MenuItem>
-                                    <MenuItem onClick={this.props.logout.bind(this)}>
-                                        <ExitToApp/>
-                                    </MenuItem>
-                                    <MenuItem onClick={this.closeProfileMenu}>
-                                        <Close/>
-                                    </MenuItem>
-                                </Menu>
-                            </React.Fragment>
+                            <div style={{flexShrink: 1, width: '50%', display: 'flex', justifyContent: 'flex-start'}}>
+                                    <IconButton onClick={this.handleToggleDrawer} edge="start">
+                                        <ListIcon/>
+                                    </IconButton>
+                            </div>
+                            <div style={{flexShrink: 0}}>
+                                <Typography style={{flexGrow: 1}}>STAY AWHILE</Typography>
+                            </div>
+                            <div style={{flexShrink: 1, width: '50%', display: 'flex', justifyContent: 'flex-end'}}>
+                                    <IconButton onClick={this.goToPatreon}>
+                                        <img src={`${process.env.PUBLIC_URL}/patreon.png`} style={{height: '15px'}}/>
+                                    </IconButton>
+                                    <IconButton onClick={this.handleToggleProfileMenu} edge="end">
+                                        {this.renderAvatar()}
+                                    </IconButton>
+                                    <Menu
+                                        id="profile-menu"
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                        anchorEl={this.state.profileAnchorEl}
+                                        open={Boolean(this.state.profileMenuOpen)}
+                                        onClose={this.closeProfileMenu}
+                                    >
+                                        <MenuItem onClick={this.login}>Change Account</MenuItem>
+                                        <MenuItem onClick={this.props.logout.bind(this)}>
+                                            <ExitToApp/>
+                                        </MenuItem>
+                                        <MenuItem onClick={this.closeProfileMenu}>
+                                            <Close/>
+                                        </MenuItem>
+                                    </Menu>
+                            </div>
                         </Toolbar>
                     </AppBar>
                 </div>
