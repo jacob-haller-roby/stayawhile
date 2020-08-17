@@ -74,8 +74,10 @@ redisClient.exciseUserFromRoom = async (userId, roomId) => {
 }
 redisClient.exciseUserFromAllRooms = async (userId) => {
     logger.debug(`User ${userId} is being removed from any current attendance`);
-    await Promise.all(await redisClient.smembersa(redisKeys.userRooms(userId))
-        .map(async roomIds => await Promise.all(roomIds.map(roomId => redisClient.srem(redisKeys.roomAttendees(roomId), userId)))));
+    await Promise.all(
+        (await redisClient.smembersa(redisKeys.userRooms(userId)))
+            .map(async roomId => await redisClient.srem(redisKeys.roomAttendees(roomId), userId))
+    );
     await redisClient.del(redisKeys.userCurrentRoom(userId));
     logger.debug(`User ${userId} has had their attendance removed.`);
 }
