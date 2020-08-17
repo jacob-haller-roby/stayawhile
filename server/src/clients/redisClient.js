@@ -54,14 +54,30 @@ redisClient.leaveRoom = async (roomId, userId) => {
     await redisClient.srem(redisKeys.roomParticipants(roomId), userId);
     await redisClient.srem(redisKeys.userRooms(userId), roomId);
 };
+
+const TTL_ROOM_ATTENDANCE = 60;
 redisClient.attendRoom = async (roomId, userId) => {
     await redisClient.set(redisKeys.userCurrentRoom(userId), roomId);
+    await redisClient.expire(redisKeys.userCurrentRoom(userId), TTL_ROOM_ATTENDANCE);
     await redisClient.sadd(redisKeys.roomAttendees(roomId), userId);
 }
+redisClient.refreshRoomAttendance = async (userId) => {
+    await redisClient.expire(redisKeys.userCurrentRoom(userId), TTL_ROOM_ATTENDANCE);
+}
 redisClient.departRoom = async (userId) => {
-    await redisClient.smembersa(redisKeys.userRooms(userId))
-        .then(async roomIds => await Promise.all(roomIds.map(roomId => redisClient.srem(redisKeys.roomAttendees(roomId), userId))));
+    const userCurrentRoomId = await redisClient.get(redisKeys.userCurrentRoom(userId));
+    return await redisClient.exciseUserFromRoom(userId, userCurrentRoomId);
+}
+redisClient.exciseUserFromRoom = async (userId, roomId) => {
+    await redisClient.srem(redisKeys.roomAttendees(roomId), userId);
     await redisClient.del(redisKeys.userCurrentRoom(userId));
+}
+redisClient.exciseUserFromAllRooms = async (userId) => {
+    logger.debug(`User ${userId} is being removed from any current attendance`);
+    await Promise.all(await redisClient.smembersa(redisKeys.userRooms(userId))
+        .map(async roomIds => await Promise.all(roomIds.map(roomId => redisClient.srem(redisKeys.roomAttendees(roomId), userId)))));
+    await redisClient.del(redisKeys.userCurrentRoom(userId));
+    logger.debug(`User ${userId} has had their attendance removed.`);
 }
 redisClient.addRoom = async (ownerId, options) => {
     await redisClient.setnx(redisKeys.roomIdCounter(), 0);
@@ -73,7 +89,7 @@ redisClient.addRoom = async (ownerId, options) => {
         id: roomId,
         owner: ownerId, ...options
     }));
-    redisClient.joinRoom(roomId, ownerId);
+    await redisClient.joinRoom(roomId, ownerId);
     return await redisClient.getRoom(roomId);
 };
 redisClient.getRoomsByUser = async (userId) => {

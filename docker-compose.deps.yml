@@ -13,7 +13,7 @@ services:
             # Use corla_redis:6379 to connect from another docker container
             # Use 127.0.0.1:${REDIS_HOST_PORT} to connect from host
             - "${REDIS_DOCKER_HOST_PORT}:${REDIS_PORT}"
-        command: ["--notify-keyspace-events", "Khs"]
+        command: ["--notify-keyspace-events", "Khsx"]
 
 volumes:
     stay_a_while_redis:

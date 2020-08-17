@@ -31,6 +31,16 @@ const redisSubscriberClient = {
                     attendees.forEach(attendeeId => redisSubscriberClient.websocketClient.sendToUser(attendeeId, "ROOM_ATTENDEES", {roomId, attendees}));
                 }
             }
+        },
+        {
+            pattern: '*' + redisKeys.userCurrentRoom('*'),
+            callback: async (pattern, channel, message) => {
+                if (message === 'expired') {
+                    const userId = channel.split(':')[2];
+                    logger.debug(`PUBSUB: User session expired for ${userId}`);
+                    await redisSubscriberClient.redisClient.exciseUserFromAllRooms(userId);
+                }
+            }
         }
     ],
     subscribers: []

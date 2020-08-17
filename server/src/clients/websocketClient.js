@@ -5,7 +5,8 @@ const webSocketClient = {};
 
 webSocketClient.connectionMap = {};
 
-webSocketClient.init = (server) => {
+webSocketClient.init = (server, redisClient) => {
+    webSocketClient.redisClient = redisClient;
     webSocketClient.server = new WebSocket.Server({server});
     webSocketClient.server.on('connection', (socket, req) => {
 
@@ -15,17 +16,19 @@ webSocketClient.init = (server) => {
         delete webSocketClient.connectionMap[userId];
         webSocketClient.connectionMap[userId] = socket;
 
-        socket.on('message', message => {
+        socket.on('message', async message => {
+            await webSocketClient.redisClient.refreshRoomAttendance(userId);
             logger.debug(`websocket message received for user: ${userId}, message: ${message}`);
             socket.send(JSON.stringify({connectionResponse: `Message received: ${message}`}));
         });
     })
 };
 
-webSocketClient.sendToUser = (userId, type, message) => {
+webSocketClient.sendToUser = async (userId, type, message) => {
     const socket = webSocketClient.connectionMap[userId];
     if (!socket) {
-        return logger.error(`Cannot send websocket message to ${userId}. No connection stored.`)
+        logger.error(`Cannot send websocket message to ${userId}. No connection stored.`)
+        return await webSocketClient.redisClient.exciseUserFromAllRooms(userId);
     }
     socket.send(JSON.stringify({
         type,

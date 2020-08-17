@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
 const server = app.listen(process.env.SERVER_PORT, '0.0.0.0');
 
 logger.debug('Init websocketClient');
-webSocketClient.init(server);
+webSocketClient.init(server, redisClient);
 logger.debug('Init spotifyApiClient');
 spotifyApiClient.init(redisClient);
 logger.debug('Init redisSubscriberClient');
