@@ -1,9 +1,10 @@
 import React from 'react';
 import {
     Accordion,
-    AccordionSummary,
     AccordionDetails,
+    AccordionSummary,
     Avatar,
+    Grid,
     List,
     ListItem,
     ListItemAvatar,
@@ -17,25 +18,36 @@ class AttendeesList extends React.Component {
     render() {
         return (
             <Paper style={{flexShrink: 1, display: 'flex'}}>
-                <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMore/>}>
-                        <Typography>
-                            Current Room Attendees
-                        </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <List>
-                            {this.props.attendees.map(attendee => (
-                                <ListItem key={attendee.id}>
-                                    <ListItemAvatar>
-                                        <Avatar src={attendee.imageUrl}/>
-                                    </ListItemAvatar>
-                                    <ListItemText primary={attendee.display_name}/>
-                                </ListItem>
-                            ))}
-                        </List>
-                    </AccordionDetails>
-                </Accordion>
+                <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                        <Accordion>
+                            <AccordionSummary expandIcon={<ExpandMore/>}>
+                                <Typography>
+                                    Room Attendees
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <List>
+                                    <ListItem>
+                                        <Grid container justify='center' spacing={3}>
+                                            <Grid item>
+                                                {this.props.children}
+                                            </Grid>
+                                        </Grid>
+                                    </ListItem>
+                                    {this.props.attendees.map(attendee => (
+                                        <ListItem key={attendee.id}>
+                                            <ListItemAvatar>
+                                                <Avatar src={attendee.imageUrl}/>
+                                            </ListItemAvatar>
+                                            <ListItemText primary={attendee.display_name}/>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </AccordionDetails>
+                        </Accordion>
+                    </Grid>
+                </Grid>
             </Paper>
         )
     }

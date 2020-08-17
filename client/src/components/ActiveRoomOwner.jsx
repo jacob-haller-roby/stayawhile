@@ -4,6 +4,7 @@ import RoomActions from "./RoomActions";
 import PlaylistPhraseDialog from "./PlaylistPhraseDialog";
 import {Chat, PlayArrow} from "@material-ui/icons";
 import AttendeesList from "./AttendeesList";
+import InviteLink from "./InviteLink";
 
 
 class ActiveRoomOwner extends React.Component {
@@ -47,7 +48,9 @@ class ActiveRoomOwner extends React.Component {
                         </Card>
                     </Grid>
                     <Grid item xs={12} style={{display: 'flex', justifyContent: 'center'}}>
-                        <AttendeesList attendees={this.props.roomAttendees}/>
+                        <AttendeesList attendees={this.props.roomAttendees}>
+                            <InviteLink room={this.props.room}/>
+                        </AttendeesList>
                     </Grid>
                     <Grid item md={6} xs={12}>
                         <RoomActions playlists={this.props.playlists}
